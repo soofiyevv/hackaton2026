@@ -659,6 +659,11 @@ try:
 except Exception:
     pass
 VISITOR = st.session_state["visitor"]
+
+import inspect  # noqa: E402
+# tolerate a backend module that is older than this page (e.g. hosting kept the old one in memory)
+OWNER_KW = {"owner": VISITOR} if "owner" in inspect.signature(process_ticket).parameters else {}
+HISTORY_HAS_OWNER = "owner" in inspect.signature(get_ticket_history).parameters
 LOGO = HERE / "logo.svg"
 ICON = HERE / "icon.svg"
 try:
@@ -718,7 +723,7 @@ has an independent auditor check it, and drafts the message you can send.</div><
             pipe_ph = st.empty()
             pipe_ph.markdown(render_pipeline([]), unsafe_allow_html=True)
             tl_ph = st.empty()
-            last = process_ticket(text, mode=mode, on_event=live_runner(pipe_ph, tl_ph), owner=VISITOR)
+            last = process_ticket(text, mode=mode, on_event=live_runner(pipe_ph, tl_ph), **OWNER_KW)
             pipe_ph.markdown(render_pipeline(last.get("execution_trace") or [], finished=True), unsafe_allow_html=True)
             tl_ph.empty()
         st.session_state["last_result"] = last
@@ -736,7 +741,7 @@ has an independent auditor check it, and drafts the message you can send.</div><
             chosen = (custom_cat.strip() or "other") if cat == "other" else (None if cat.startswith("(") else cat)
             result = process_ticket(text, category=chosen,
                                     urgency=None if urg.startswith("(") else urg, mode=mode,
-                                    on_event=live_runner(pipe_ph, tl_ph), owner=VISITOR)
+                                    on_event=live_runner(pipe_ph, tl_ph), **OWNER_KW)
             st.session_state["last_result"] = result
             st.rerun()
 
@@ -866,7 +871,10 @@ def page_history() -> None:
     header("Case history", "Your cases, with the full trace of what each agent did.")
     scope = st.radio("Show", ["My cases", "All cases (staff view)"], horizontal=True, label_visibility="collapsed",
                      key="hist_scope")
-    hist = get_ticket_history(owner=VISITOR if scope == "My cases" else None)
+    if HISTORY_HAS_OWNER:
+        hist = get_ticket_history(owner=VISITOR if scope == "My cases" else None)
+    else:
+        hist = get_ticket_history()
     if not hist:
         st.markdown('<div class="card small">No cases yet. Describe a problem on the Resolve page; '
                     'your cases appear here and only you see them in this view.</div>', unsafe_allow_html=True)
