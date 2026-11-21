@@ -18,6 +18,15 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent if (HERE.parent / "backend").is_dir() else HERE.parent / "hackaton2026"
 sys.path.insert(0, str(REPO))
 
+# Streamlit Cloud: copy secrets into environment variables so the backend (os.getenv) sees the API keys
+import os  # noqa: E402
+try:
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, (str, int, float)) and not os.environ.get(_k):
+            os.environ[_k] = str(_v)
+except Exception:  # no secrets.toml locally: .env is used instead
+    pass
+
 from backend import (  # noqa: E402
     check_models, close_incident, get_analytics, get_dashboard_stats, get_incidents,
     get_lessons_learned, get_pending_reviews, get_recorded_runs, get_system_status, get_ticket,
@@ -57,11 +66,12 @@ html, body, [class*="css"], .stApp {{ font-family: 'Inter', sans-serif; }}
 #MainMenu, footer, div[data-testid="stToolbarActions"], div[data-testid="stAppDeployButton"], div[data-testid="stMainMenu"] {{ display: none !important; }}
 header[data-testid="stHeader"] {{ background: rgba(5,19,14,.80) !important; backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%); border-bottom: 1px solid {GREEN_LINE}; height: 4.25rem; }}
-header[data-testid="stHeader"] a, header[data-testid="stHeader"] span, header[data-testid="stHeader"] p {{
+header[data-testid="stHeader"] a p, header[data-testid="stHeader"] a > span:not([data-testid="stIconMaterial"]) {{
   font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; font-size: 1rem !important; }}
+span[data-testid="stIconMaterial"], .material-symbols-rounded {{ font-family: 'Material Symbols Rounded' !important; }}
 header[data-testid="stHeader"] a {{ transition: color .25s ease, background .25s ease; border-radius: 10px; }}
 header[data-testid="stHeader"] a:hover {{ color: {GOLD} !important; background: rgba(240,194,75,.06) !important; }}
-header[data-testid="stHeader"] a[aria-current="page"], header[data-testid="stHeader"] a[aria-current="page"] span {{ color: {GOLD} !important; }}
+header[data-testid="stHeader"] a[aria-current="page"], header[data-testid="stHeader"] a[aria-current="page"] p {{ color: {GOLD} !important; }}
 img[data-testid="stLogo"], div[data-testid="stLogo"] img {{ height: 2.6rem !important; }}
 .block-container {{ padding-top: 5.2rem; padding-bottom: 4rem; max-width: 1360px; }}
 h1, h2, h3 {{ font-family: 'Space Grotesk', sans-serif !important; color: {CREAM} !important; letter-spacing: -0.02em; }}
@@ -173,6 +183,23 @@ div[class*="st-key-pg_"] > div > div:nth-child(3) {{ animation: pageSwap .6s .12
 .ornament svg path, .ornament svg circle {{ fill:none; stroke:{GOLD}; stroke-width:1.4; stroke-linecap:round; }}
 .ornament svg .f {{ fill:{GOLD}; stroke:none; opacity:.9; }}
 @media (max-width: 1000px) {{ .hero-wrap {{ grid-template-columns: 1fr; }} .skyline {{ max-width: 520px; }} }}
+/* mobile: compact controls row, smaller hero */
+.st-key-ctrl div[data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; flex-direction: row !important; gap: 10px !important; }}
+.st-key-ctrl div[data-testid="stColumn"] {{ min-width: 0 !important; }}
+@media (max-width: 640px) {{
+  .st-key-ctrl div[data-testid="stColumn"]:first-child {{ display: none !important; }}
+  .st-key-ctrl div[data-testid="stColumn"] {{ width: auto !important; flex: 1 1 0 !important; }}
+  .block-container {{ padding-top: 4.6rem; padding-left: 1rem; padding-right: 1rem; }}
+  .hero-h {{ font-size: 2.1rem; }}
+  .hero-k, .heritage {{ font-size: .68rem; margin: 4px 4px 0 0; }}
+  .bigq {{ font-size: 1.45rem; }}
+  .pipe {{ padding: 14px 8px; }}
+  .node {{ min-width: 64px; }}
+  .orb {{ width: 42px; height: 42px; border-radius: 12px; font-size: 1rem; }}
+  .link {{ flex-basis: 10px; }}
+  .nname {{ font-size: .72rem; }}
+  .stat .v {{ font-size: 2rem; }}
+}}
 
 /* landing sections */
 .feats {{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }}
@@ -796,6 +823,15 @@ def page_backup() -> None:
 
 def controls() -> str:
     """Live/offline switch + model status, top right of every page. Returns the execution mode."""
+    try:
+        box = st.container(key="ctrl")
+    except TypeError:
+        box = st.container()
+    with box:
+        return _controls_inner()
+
+
+def _controls_inner() -> str:
     _, c1, c2 = st.columns([6.2, 1.1, 1.3], vertical_alignment="center")
     live = c1.toggle("Live AI", value=st.session_state.get("live", True), key="live",
                      help="Off = clearly labelled offline simulation (no API calls).")
