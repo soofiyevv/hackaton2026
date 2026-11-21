@@ -754,12 +754,12 @@ has an independent auditor check it, and drafts the message you can send.</div><
         st.markdown('<div class="reveal"><div class="kicker">Measured, not promised</div>'
                     '<div class="bigq" style="margin:10px 0 22px">Evaluated on 20 hand-labelled student problems.</div></div>',
                     unsafe_allow_html=True)
-        stats = [("95%", "routing accuracy"), ("16/20", "accepted by the auditor first time"),
-                 ("3.2 s", "median time per case"), ("0", "crashed cases")]
+        stats = [("100%", "routing accuracy"), ("17/20", "accepted by the auditor first time"),
+                 ("2.8 s", "median time per case"), ("108/108", "LLM calls answered live")]
         st.markdown('<div class="stats">' + "".join(
             f'<div class="stat"><div class="v">{v}</div><div class="l">{e(l)}</div></div>' for v, l in stats)
             + '</div>', unsafe_allow_html=True)
-        st.markdown('<div class="small" style="margin-top:10px">Small hand-made test set, live LLM run at 11:23 '
+        st.markdown('<div class="small" style="margin-top:10px">Small hand-made test set, live LLM run at 14:35 '
                     '(demo/evaluate.py). Numbers describe that run, not real-world performance.</div>',
                     unsafe_allow_html=True)
 
