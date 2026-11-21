@@ -1,0 +1,558 @@
+{
+  "_notice": "DEMO DATA. Illustrative university support knowledge base written for the hackathon. It is NOT official University of Debrecen information and contains no real contact details.",
+  "entries": [
+    {
+      "id": "KB-IT-01",
+      "department": "IT Service Desk",
+      "category": "it_network",
+      "keywords": [
+        "wifi",
+        "wi-fi",
+        "eduroam",
+        "internet",
+        "network",
+        "connection",
+        "connect",
+        "router",
+        "offline",
+        "slow"
+      ],
+      "scope": "Campus Wi-Fi (eduroam) and wired network problems.",
+      "procedures": [
+        "Forget the eduroam network on the device and reconnect using the full university username and password.",
+        "Check whether the problem affects other devices or other students in the same room to tell a device issue from a network outage.",
+        "As a temporary workaround use a wired connection, a computer lab, or a mobile hotspot.",
+        "Report the outage to the IT Service Desk with building, room, time it started, device type and the error message."
+      ],
+      "contact_channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+      "typical_response": "Same working day for building-wide outages"
+    },
+    {
+      "id": "KB-IT-02",
+      "department": "IT Service Desk",
+      "category": "it_accounts",
+      "keywords": [
+        "portal",
+        "neptun",
+        "login",
+        "password",
+        "account",
+        "access",
+        "locked",
+        "mfa",
+        "two-factor",
+        "canvas",
+        "moodle",
+        "elearning"
+      ],
+      "scope": "University accounts, student portal (Neptun), e-learning platform access.",
+      "procedures": [
+        "Use the official password reset page for the university account.",
+        "Try a private browser window and clear cookies to rule out a cached session problem.",
+        "If the account is locked or multi-factor authentication fails, contact the IT Service Desk with the student ID (never share the password)."
+      ],
+      "contact_channel": "IT Service Desk ticket form (see the official university IT page)",
+      "typical_response": "1-2 working days"
+    },
+    {
+      "id": "KB-FAC-01",
+      "department": "Facilities Management",
+      "category": "facilities",
+      "keywords": [
+        "chair",
+        "desk",
+        "table",
+        "broken",
+        "furniture",
+        "door",
+        "window",
+        "heating",
+        "light",
+        "leak",
+        "toilet",
+        "cleaning",
+        "damaged"
+      ],
+      "scope": "Damaged furniture, building fabric, heating, lighting, cleaning.",
+      "procedures": [
+        "Stop using the damaged item and move it aside or mark it so nobody else uses it.",
+        "Note the building, room number and a short description; take a photo if possible.",
+        "Report the damage to Facilities Management (building reception / porter's desk or the facilities request form).",
+        "If the room becomes unusable for a scheduled class, inform the instructor so the class can be moved."
+      ],
+      "contact_channel": "Building reception / porter's desk or facilities request form",
+      "typical_response": "Usually within a few working days for non-urgent repairs"
+    },
+    {
+      "id": "KB-FAC-02",
+      "department": "Facilities Management",
+      "category": "classroom_equipment",
+      "keywords": [
+        "projector",
+        "screen",
+        "microphone",
+        "speaker",
+        "hdmi",
+        "beamer",
+        "whiteboard",
+        "equipment",
+        "socket",
+        "power"
+      ],
+      "scope": "Classroom audio-visual and teaching equipment.",
+      "procedures": [
+        "Check cables and the input source selection before reporting.",
+        "Report the faulty equipment with room number to the building reception, which forwards it to the technical team.",
+        "Ask the instructor to request a room change if the class cannot run without the equipment."
+      ],
+      "contact_channel": "Building reception / porter's desk",
+      "typical_response": "Same day for teaching-critical equipment when reported early"
+    },
+    {
+      "id": "KB-EXAM-01",
+      "department": "Study Office (Faculty Registrar)",
+      "category": "exams_academic",
+      "keywords": [
+        "exam",
+        "test",
+        "midterm",
+        "deadline",
+        "assignment",
+        "grade",
+        "retake",
+        "reschedule",
+        "postpone",
+        "sick",
+        "missed",
+        "extension"
+      ],
+      "scope": "Exams, deadlines, retakes, academic exceptions.",
+      "procedures": [
+        "If a technical or other problem may affect an exam, inform the examiner or course instructor BEFORE the exam starts if at all possible.",
+        "Document the problem (time, screenshots, error messages, witnesses) as evidence.",
+        "Rescheduling an exam or granting an exception is decided by the instructor and/or the Study Office under the study regulations; a student cannot be promised a new date automatically.",
+        "Submit a formal request through the official student administration system with supporting documents (e.g. medical certificate)."
+      ],
+      "contact_channel": "Course instructor, then the faculty Study Office",
+      "typical_response": "Depends on the request; formal requests can take several working days",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-SAFE-01",
+      "department": "Campus Security",
+      "category": "safety",
+      "keywords": [
+        "injury",
+        "injured",
+        "fire",
+        "smoke",
+        "danger",
+        "unsafe",
+        "electric",
+        "shock",
+        "fall",
+        "emergency",
+        "threat",
+        "gas"
+      ],
+      "scope": "Immediate danger, injuries, hazards.",
+      "procedures": [
+        "If anyone is in immediate danger call the European emergency number 112.",
+        "Move away from the hazard and keep others away.",
+        "Inform building reception / campus security so the area can be secured.",
+        "Report the hazard afterwards so it can be fixed."
+      ],
+      "contact_channel": "112 in emergencies; building reception / campus security otherwise",
+      "typical_response": "Immediate"
+    },
+    {
+      "id": "KB-DORM-01",
+      "department": "Dormitory Office",
+      "category": "housing",
+      "keywords": [
+        "dorm",
+        "dormitory",
+        "room",
+        "roommate",
+        "kitchen",
+        "key",
+        "laundry",
+        "accommodation",
+        "hostel"
+      ],
+      "scope": "University dormitory issues.",
+      "procedures": [
+        "Report maintenance issues in the dormitory to the dormitory reception.",
+        "For room changes or roommate conflicts contact the dormitory office in person or via its official email channel."
+      ],
+      "contact_channel": "Dormitory reception / dormitory office",
+      "typical_response": "1-3 working days"
+    },
+    {
+      "id": "KB-INTL-01",
+      "department": "International Student Office",
+      "category": "international",
+      "keywords": [
+        "international",
+        "visa",
+        "residence",
+        "permit",
+        "document",
+        "certificate",
+        "enrollment",
+        "insurance",
+        "foreign"
+      ],
+      "scope": "Documents and administration for international students.",
+      "procedures": [
+        "Request official certificates (e.g. student status) through the student administration system or the international office.",
+        "For residence or visa matters, ask the International Student Office for guidance; they can explain which documents the authorities require."
+      ],
+      "contact_channel": "International Student Office",
+      "typical_response": "Several working days",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-LIB-01",
+      "department": "University Library",
+      "category": "library",
+      "keywords": [
+        "library",
+        "book",
+        "loan",
+        "borrow",
+        "study room",
+        "database",
+        "journal",
+        "fine"
+      ],
+      "scope": "Library services, loans, study rooms, e-resources.",
+      "procedures": [
+        "Check loan status and renew online through the library account.",
+        "Ask at the library information desk for study room bookings or e-resource access problems."
+      ],
+      "contact_channel": "Library information desk",
+      "typical_response": "Same day"
+    },
+    {
+      "id": "KB-ADM-01",
+      "department": "Study Office (Faculty Registrar)",
+      "category": "administration",
+      "keywords": [
+        "certificate",
+        "enrolment",
+        "enrollment",
+        "transcript",
+        "student status",
+        "registration",
+        "course registration",
+        "neptun",
+        "semester",
+        "credit",
+        "timetable",
+        "schedule",
+        "document",
+        "signature",
+        "form"
+      ],
+      "scope": "Course registration, student status certificates, transcripts, semester enrolment, timetables.",
+      "procedures": [
+        "Request official certificates (student status, transcript) through the student administration system (Neptun) using the request/form menu.",
+        "For course registration problems, check the registration period and prerequisite courses in the student administration system first.",
+        "If the system does not allow the action, contact the faculty Study Office with student ID, course code and a screenshot of the error.",
+        "Exceptions to registration deadlines are decided by the Study Office; the student should submit a formal request."
+      ],
+      "contact_channel": "Faculty Study Office (counter or official request form in the student administration system)",
+      "typical_response": "Certificates usually within a few working days; exceptions longer",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-FIN-01",
+      "department": "Student Finance Office",
+      "category": "finance",
+      "keywords": [
+        "scholarship",
+        "stipend",
+        "payment",
+        "tuition",
+        "fee",
+        "fees",
+        "refund",
+        "invoice",
+        "bank",
+        "money",
+        "financial",
+        "grant",
+        "paid",
+        "pay"
+      ],
+      "scope": "Scholarships, tuition and fee payments, refunds, student invoices.",
+      "procedures": [
+        "Check the student administration system finance menu for the status of the scholarship or payment item.",
+        "Verify that the bank account details stored in the student administration system are correct and up to date.",
+        "If a payment is missing or incorrect, contact the Student Finance Office with student ID, the payment item and the expected date.",
+        "Corrections, refunds and payment exceptions are decided by Student Finance Office staff."
+      ],
+      "contact_channel": "Student Finance Office (official university finance contact page)",
+      "typical_response": "Several working days",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-WELL-01",
+      "department": "Student Counselling Service",
+      "category": "wellbeing",
+      "keywords": [
+        "stress",
+        "anxiety",
+        "anxious",
+        "depressed",
+        "depression",
+        "lonely",
+        "overwhelmed",
+        "mental",
+        "counselling",
+        "counseling",
+        "burnout",
+        "panic",
+        "homesick",
+        "psychologist",
+        "sad"
+      ],
+      "scope": "Confidential psychological counselling and wellbeing support for students.",
+      "procedures": [
+        "If someone is in immediate danger or thinking about harming themselves, call the European emergency number 112 now.",
+        "Book a confidential appointment with the university Student Counselling Service.",
+        "Talk to someone you trust (friend, family, mentor) and let them know how you are feeling.",
+        "For exam-related stress, the student can also ask the instructor or Study Office about available academic support."
+      ],
+      "contact_channel": "Student Counselling Service (official university page); 112 in emergencies",
+      "typical_response": "Appointments usually within days; urgent support through emergency services",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-HEALTH-01",
+      "department": "University Health Service",
+      "category": "health",
+      "keywords": [
+        "sick",
+        "ill",
+        "doctor",
+        "fever",
+        "medical",
+        "health",
+        "injury",
+        "pain",
+        "medicine",
+        "clinic",
+        "gp",
+        "nurse",
+        "hospital",
+        "allergy"
+      ],
+      "scope": "Medical care for students, medical certificates, health insurance questions.",
+      "procedures": [
+        "In a medical emergency call 112.",
+        "For non-urgent illness, visit the student/university health service or a general practitioner during opening hours.",
+        "Ask the doctor for a medical certificate if classes or exams are missed; it is needed for formal academic requests.",
+        "International students should keep their health insurance documents with them."
+      ],
+      "contact_channel": "University health service / general practitioner; 112 in emergencies",
+      "typical_response": "Same day for acute cases"
+    },
+    {
+      "id": "KB-ACC-01",
+      "department": "Disability & Accessibility Support",
+      "category": "accessibility",
+      "keywords": [
+        "disability",
+        "disabled",
+        "wheelchair",
+        "accessible",
+        "accessibility",
+        "elevator",
+        "lift",
+        "ramp",
+        "dyslexia",
+        "adhd",
+        "hearing",
+        "visual",
+        "special needs",
+        "accommodation request"
+      ],
+      "scope": "Support and reasonable adjustments for students with disabilities; physical accessibility of buildings.",
+      "procedures": [
+        "Register with the university disability/accessibility support coordinator to request adjustments (e.g. extra exam time).",
+        "Report broken lifts, ramps or blocked accessible routes to building reception so they can be fixed quickly.",
+        "Adjustments for exams are approved by the coordinator and the Study Office; request them well before the exam period."
+      ],
+      "contact_channel": "Disability & accessibility support coordinator (official university page); building reception for physical barriers",
+      "typical_response": "Physical barriers: as soon as possible; adjustments: several working days",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-CONDUCT-01",
+      "department": "Student Ombudsman / Equal Opportunities Office",
+      "category": "conduct",
+      "keywords": [
+        "harassment",
+        "harassed",
+        "bullying",
+        "bullied",
+        "discrimination",
+        "discriminated",
+        "racism",
+        "racist",
+        "threat",
+        "unfair",
+        "complaint",
+        "abuse",
+        "inappropriate"
+      ],
+      "scope": "Harassment, discrimination, bullying and formal complaints.",
+      "procedures": [
+        "If anyone is in immediate danger, call 112 or campus security.",
+        "Write down what happened (date, time, place, people involved, witnesses) and keep any messages as evidence.",
+        "Contact the student ombudsman / equal opportunities office for confidential advice on the options.",
+        "Formal complaints are investigated by authorised staff; the system cannot judge the case."
+      ],
+      "contact_channel": "Student ombudsman / equal opportunities office (official university page)",
+      "typical_response": "Initial contact within a few working days",
+      "requires_human_decision": true
+    },
+    {
+      "id": "KB-CANT-01",
+      "department": "Catering Services",
+      "category": "campus_services",
+      "keywords": [
+        "canteen",
+        "cafeteria",
+        "food",
+        "meal",
+        "lunch",
+        "menu",
+        "vegetarian",
+        "vegan",
+        "halal",
+        "buffet",
+        "coffee",
+        "vending",
+        "food poisoning"
+      ],
+      "scope": "University canteens, cafeterias, vending machines.",
+      "procedures": [
+        "Report food quality or hygiene problems to the canteen manager on site, with date and time of purchase.",
+        "Ask canteen staff about allergen information and vegetarian/halal options before ordering.",
+        "If you feel unwell after eating, seek medical help and keep the receipt."
+      ],
+      "contact_channel": "Canteen manager on site",
+      "typical_response": "Same day"
+    },
+    {
+      "id": "KB-LOST-01",
+      "department": "Building Reception",
+      "category": "campus_services",
+      "keywords": [
+        "lost",
+        "found",
+        "forgot",
+        "wallet",
+        "phone",
+        "keys",
+        "bag",
+        "laptop left",
+        "left my",
+        "stolen",
+        "missing item",
+        "card lost",
+        "student card"
+      ],
+      "scope": "Lost and found items, lost student cards.",
+      "procedures": [
+        "Ask at the reception / porter's desk of the building where the item was lost; found items are usually handed in there.",
+        "If the student card is lost, report it so it can be blocked and request a replacement through the student administration.",
+        "If the item was stolen, report it to campus security; for theft the police can also be contacted."
+      ],
+      "contact_channel": "Building reception / porter's desk",
+      "typical_response": "Immediate check at reception"
+    },
+    {
+      "id": "KB-PRINT-01",
+      "department": "IT Service Desk",
+      "category": "it_accounts",
+      "keywords": [
+        "print",
+        "printer",
+        "printing",
+        "scan",
+        "scanner",
+        "copy",
+        "copier",
+        "print credit",
+        "toner",
+        "paper jam"
+      ],
+      "scope": "Student printing, scanning and copying.",
+      "procedures": [
+        "Check the print credit balance on the student account and top up if needed.",
+        "Try another printer in the same building and note the printer ID of the faulty one.",
+        "Report hardware faults (paper jam, no toner) to building reception or the IT Service Desk with the printer ID."
+      ],
+      "contact_channel": "IT Service Desk / building reception",
+      "typical_response": "Same or next working day"
+    },
+    {
+      "id": "KB-SPORT-01",
+      "department": "University Sports Centre",
+      "category": "campus_services",
+      "keywords": [
+        "gym",
+        "sport",
+        "sports",
+        "fitness",
+        "swimming",
+        "pool",
+        "basketball",
+        "football",
+        "court",
+        "training",
+        "locker",
+        "sports pass"
+      ],
+      "scope": "University sports facilities, sports courses and passes.",
+      "procedures": [
+        "Check opening hours and booking rules of the sports facility on the official sports centre page.",
+        "Report broken or unsafe sports equipment to the staff on duty immediately and stop using it.",
+        "For sports course registration use the student administration system during the registration period."
+      ],
+      "contact_channel": "Sports centre reception",
+      "typical_response": "Same day"
+    },
+    {
+      "id": "KB-TRANS-01",
+      "department": "Student Services (general)",
+      "category": "transport",
+      "keywords": [
+        "bus",
+        "tram",
+        "transport",
+        "ticket",
+        "pass",
+        "student pass",
+        "parking",
+        "bike",
+        "bicycle",
+        "commute",
+        "late bus",
+        "shuttle"
+      ],
+      "scope": "Getting to campus: public transport student passes, parking and bike storage.",
+      "procedures": [
+        "Student discounts on local public transport require a valid student ID card; check the operator's official ticket rules.",
+        "For problems with local buses or trams (delays, missing service), contact the public transport operator's customer service.",
+        "For campus parking permits or bike storage ask the building reception or facilities management."
+      ],
+      "contact_channel": "Public transport operator customer service; building reception for parking",
+      "typical_response": "Varies"
+    }
+  ]
+}

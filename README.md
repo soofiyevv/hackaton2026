@@ -1,0 +1,56 @@
+# UniResolve AI
+
+**A multi-agent system that turns University of Debrecen students' campus problems into verified, actionable resolution plans, with an independent AI auditor that rejects weak answers, forces revisions and escalates to staff when needed.**
+
+Track: **Autonomous Agents & Intelligent Systems** - GDG Debrecen Agentic AI Hackathon 2026. Built on 21 November 2026.
+
+## How it works
+
+```
+Student report
+   -> Triage Agent       category, urgency, time-sensitivity, safety risk
+   -> Routing Agent      owning department, knowledge base entries, human approval needed?
+   -> Resolution Agent   step-by-step plan grounded in the knowledge base
+   <-> Auditor Agent     8 programmatic checks + independent LLM review -> ACCEPT / REJECT + feedback
+        (rejected -> feedback goes back to Resolution Agent, max 2 revisions)
+   -> Orchestrator       finalize | await human approval | escalate to human
+   -> SQLite             tickets, agent_logs, decisions
+```
+
+- Real agent loop in code (`backend/orchestrator.py`): the auditor's feedback is passed back into the resolver's next prompt.
+- The auditor combines deterministic checks (unknown KB references, invented contact details, ignored urgency, ignored exam, missing safety guidance...) with an LLM review. A plan is accepted only if both agree.
+- Model fallback chain across Groq (gpt-oss-120b / 20b) and Gemini (3.5 / 3.8 flash), then offline simulation (auto mode). Light agents use a fast model so the strong model's rate limit is kept for planning and auditing. Every agent call records which provider answered; simulated output is always labelled.
+- Knowledge base of 20 university support areas (IT, facilities, exams, administration, finance, wellbeing, health, accessibility, harassment, housing, library, canteen, lost & found, sports, transport...) in `backend/knowledge_base.json`. It is **demo data**, not official university information.
+- The system produces plans. It does not physically fix anything and does not invent success metrics.
+
+## Run it
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env            # add GEMINI_API_KEY and/or GROQ_API_KEY
+python demo/run_demo.py         # console demo of all scenarios (live LLM)
+python demo/run_demo.py --offline
+python -m pytest -q             # offline tests
+streamlit run frontend/app.py   # web UI
+```
+
+Windows: use `copy .env.example .env`.
+
+## Repository
+
+| path | owner | content |
+|---|---|---|
+| `backend/` | backend | agents, orchestrator, LLM layer, knowledge base, SQLite |
+| `frontend/` | frontend | Streamlit UI |
+| `demo/run_demo.py` | backend | console demo |
+| `tests/` | backend | pytest |
+| `BACKEND_CONTRACT.md` | backend | interface between backend and frontend |
+
+## Tools, APIs and AI assistants used
+
+- **Groq API** (`groq` SDK) - openai/gpt-oss-120b and gpt-oss-20b for the agents
+- **Google Gemini API** (`google-genai` SDK) - gemini-3.5-flash / 3.8-flash as fallback models
+- **Streamlit** - web UI
+- **SQLite** (Python standard library) - persistence
+- **python-dotenv**, **pytest**
+- **AI assistants:** Claude (Anthropic) helped write and review the backend code and documentation. <!-- add any others you used, e.g. ChatGPT/Copilot for the frontend -->
