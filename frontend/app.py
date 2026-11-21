@@ -165,6 +165,9 @@ div[data-testid="stToggle"] label p {{ color:{CREAM} !important; font-weight:600
   .stat:nth-child(4n+4) {{ animation-range: entry 26% cover 42%; }}
 }}
 
+iframe[title="streamlit_components_v1.html"], div[data-testid="stCustomComponentV1"] {{ display: none; }}
+div[data-testid="stElementContainer"]:has(iframe[height="0"]) {{ display: none; }}
+
 /* page transition: every page lives in its own keyed container, re-mounted on navigation */
 @keyframes pageSwap {{ 0% {{ opacity: 0; transform: translateY(22px); filter: blur(8px); }}
                       60% {{ filter: blur(0); }} 100% {{ opacity: 1; transform: none; filter: none; }} }}
@@ -649,15 +652,33 @@ def live_runner(pipe_ph, tl_ph):
 # ---------------------------------------------------------------- navigation + global controls
 status = get_system_status()
 
-# anonymous visitor id: each visitor sees their own case history (kept in the URL, survives reloads)
+# anonymous visitor id: each visitor sees their own case history.
+# Remembered in a browser cookie (1 year) and mirrored in the URL (?v=...), so it survives closing the site.
 if "visitor" not in st.session_state:
     import uuid
-    st.session_state["visitor"] = (st.query_params.get("v") or uuid.uuid4().hex[:10])[:32]
+    vid = None
+    try:
+        vid = st.context.cookies.get("ur_vid")
+    except Exception:
+        pass
+    vid = vid or st.query_params.get("v") or uuid.uuid4().hex[:10]
+    st.session_state["visitor"] = "".join(ch for ch in str(vid) if ch.isalnum())[:32] or uuid.uuid4().hex[:10]
 try:
     if st.query_params.get("v") != st.session_state["visitor"]:
         st.query_params["v"] = st.session_state["visitor"]
 except Exception:
     pass
+if not st.session_state.get("cookie_set"):
+    try:
+        import streamlit.components.v1 as components
+        _vid = st.session_state["visitor"]
+        components.html(
+            "<script>(function(){var c='ur_vid=" + _vid + "; max-age=31536000; path=/; SameSite=Lax';"
+            "try{document.cookie=c;}catch(e){} try{window.parent.document.cookie=c;}catch(e){}"
+            "try{window.top.document.cookie=c;}catch(e){}})();</script>", height=0)
+        st.session_state["cookie_set"] = True
+    except Exception:
+        pass
 VISITOR = st.session_state["visitor"]
 
 import inspect  # noqa: E402
