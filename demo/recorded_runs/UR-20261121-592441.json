@@ -1,0 +1,663 @@
+{
+ "ticket_id": "UR-20261121-592441",
+ "created_at": "2026-11-21T11:28:49+00:00",
+ "original_input": "University Wi-Fi is not working and my exam starts in one hour!",
+ "requested_mode": "auto",
+ "category": "it_network",
+ "priority": "critical",
+ "assigned_department": "IT Service Desk",
+ "workflow": "it_network",
+ "requires_human_approval": false,
+ "agent_results": {
+  "triage": {
+   "summary": "Student reports university Wi‑Fi is down and an exam is starting soon",
+   "category": "it_network",
+   "urgency": "critical",
+   "urgency_reason": "Exam imminent",
+   "time_sensitive": true,
+   "safety_risk": false,
+   "key_facts": [
+    "University Wi‑Fi not working",
+    "Exam starts in one hour"
+   ],
+   "location": "",
+   "exam_involved": true,
+   "is_support_request": true,
+   "language": "English"
+  },
+  "routing": {
+   "workflow": "it_network",
+   "department": "IT Service Desk",
+   "secondary_departments": [
+    "Study Office (Faculty Registrar)"
+   ],
+   "kb_ids": [
+    "KB-IT-01"
+   ],
+   "requires_human_approval": false,
+   "reason": "The issue is a campus Wi‑Fi outage affecting an imminent exam; IT Service Desk handles network problems and can provide immediate support, while the Study Office should be notified for potential exam impact."
+  },
+  "resolution_attempts": [
+   {
+    "attempt": 1,
+    "solution": {
+     "diagnosis": "Likely a campus Wi‑Fi outage affecting the student’s device, which is critical because an exam starts soon",
+     "steps": [
+      {
+       "action": "Forget the eduroam network on your device and reconnect using your full university username and password",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Check if other devices or classmates in the same room have the same Wi‑Fi problem to determine if it is a device issue or a network outage",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "If Wi‑Fi remains unavailable, switch to a temporary workaround such as a wired connection, a nearby computer lab, or a mobile hotspot",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Document the problem with time, screenshots, error messages and any witnesses (e.g., classmates) as evidence for the exam impact",
+       "owner": "student",
+       "kb_ref": "KB-EXAM-01"
+      },
+      {
+       "action": "Immediately inform your exam instructor about the Wi‑Fi issue before the exam starts, providing the documented evidence",
+       "owner": "student",
+       "kb_ref": "KB-EXAM-01"
+      },
+      {
+       "action": "Report the outage to the IT Service Desk via the ticket form or help‑desk counter, including building, room, start time, device type and error details",
+       "owner": "department",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "If the exam is disrupted, follow the Study Office procedure to submit a formal request for an academic exception, attaching the documented evidence",
+       "owner": "student",
+       "kb_ref": "KB-EXAM-01"
+      }
+     ],
+     "contact_department": "IT Service Desk",
+     "time_critical_actions": [
+      "Reconnect to eduroam after forgetting the network",
+      "Switch to a wired connection, computer lab or mobile hotspot as a temporary workaround",
+      "Inform the exam instructor immediately before the exam starts"
+     ],
+     "kb_refs": [
+      "KB-IT-01",
+      "KB-EXAM-01"
+     ],
+     "assumptions": [
+      "The student has a device capable of forgetting and reconnecting to Wi‑Fi",
+      "A wired network or hotspot is available nearby",
+      "The exam instructor can be contacted before the exam begins"
+     ],
+     "confidence": 0.93,
+     "lessons_applied": [
+      "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+      "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)",
+      "When an exam is mentioned, tell the student to inform the examiner/instructor before it starts. (auditor rejected this 1x before)",
+      "Earlier auditor remark in this category: The plan omits the KB-EXAM-01 procedure to document the problem (time, screenshots, error messages, witnesses) as evidence."
+     ]
+    },
+    "audit": {
+     "verdict": "ACCEPT",
+     "llm_verdict": "ACCEPT",
+     "programmatic_checks": [
+      {
+       "id": "C1",
+       "name": "References exist in knowledge base",
+       "passed": true,
+       "detail": "All references valid"
+      },
+      {
+       "id": "C2",
+       "name": "Solution is grounded",
+       "passed": true,
+       "detail": "Plan cites knowledge base entries"
+      },
+      {
+       "id": "C3",
+       "name": "Solution is actionable",
+       "passed": true,
+       "detail": "7 steps provided (minimum 2)"
+      },
+      {
+       "id": "C4",
+       "name": "Urgency handled",
+       "passed": true,
+       "detail": "Time-critical actions given"
+      },
+      {
+       "id": "C5",
+       "name": "Exam impact addressed",
+       "passed": true,
+       "detail": "Plan tells the student what to do about the exam"
+      },
+      {
+       "id": "C7",
+       "name": "No invented contact details",
+       "passed": true,
+       "detail": "No unsupported contact details"
+      },
+      {
+       "id": "C8",
+       "name": "Department consistent with routing",
+       "passed": true,
+       "detail": "Contact department 'IT Service Desk'"
+      }
+     ],
+     "checks_passed": 7,
+     "checks_total": 7,
+     "scores": {
+      "accuracy": 5,
+      "relevance": 5,
+      "completeness": 5,
+      "groundedness": 5
+     },
+     "issues": [],
+     "feedback": []
+    }
+   }
+  ],
+  "auditor": {
+   "verdict": "ACCEPT",
+   "llm_verdict": "ACCEPT",
+   "programmatic_checks": [
+    {
+     "id": "C1",
+     "name": "References exist in knowledge base",
+     "passed": true,
+     "detail": "All references valid"
+    },
+    {
+     "id": "C2",
+     "name": "Solution is grounded",
+     "passed": true,
+     "detail": "Plan cites knowledge base entries"
+    },
+    {
+     "id": "C3",
+     "name": "Solution is actionable",
+     "passed": true,
+     "detail": "7 steps provided (minimum 2)"
+    },
+    {
+     "id": "C4",
+     "name": "Urgency handled",
+     "passed": true,
+     "detail": "Time-critical actions given"
+    },
+    {
+     "id": "C5",
+     "name": "Exam impact addressed",
+     "passed": true,
+     "detail": "Plan tells the student what to do about the exam"
+    },
+    {
+     "id": "C7",
+     "name": "No invented contact details",
+     "passed": true,
+     "detail": "No unsupported contact details"
+    },
+    {
+     "id": "C8",
+     "name": "Department consistent with routing",
+     "passed": true,
+     "detail": "Contact department 'IT Service Desk'"
+    }
+   ],
+   "checks_passed": 7,
+   "checks_total": 7,
+   "scores": {
+    "accuracy": 5,
+    "relevance": 5,
+    "completeness": 5,
+    "groundedness": 5
+   },
+   "issues": [],
+   "feedback": []
+  },
+  "communication": {
+   "to_department": "IT Service Desk",
+   "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+   "subject": "Urgent Wi‑Fi outage affecting exam",
+   "body": "Hello,\nI am experiencing a university Wi‑Fi outage in [building/room] at [time]. My exam starts in one hour, so this issue is critical. Please investigate and restore connectivity as soon as possible.\nThank you,\n[Your name]\n[Student ID]",
+   "contains_invented_contacts": false,
+   "unsupported_claims": [],
+   "self_corrected": false,
+   "is_draft": true
+  }
+ },
+ "execution_trace": [
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:49+00:00"
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:49+00:00",
+   "duration_ms": 678,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "it_network / urgency critical",
+   "output": {
+    "summary": "Student reports university Wi‑Fi is down and an exam is starting soon",
+    "category": "it_network",
+    "urgency": "critical",
+    "urgency_reason": "Exam imminent",
+    "time_sensitive": true,
+    "safety_risk": false,
+    "key_facts": [
+     "University Wi‑Fi not working",
+     "Exam starts in one hour"
+    ],
+    "location": "",
+    "exam_involved": true,
+    "is_support_request": true,
+    "language": "English"
+   }
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "decision:classification",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:49+00:00",
+   "decision": "it_network|critical",
+   "summary": "it_network|critical - Exam imminent"
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:49+00:00"
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:50+00:00",
+   "duration_ms": 418,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "IT Service Desk (KB-IT-01)",
+   "output": {
+    "workflow": "it_network",
+    "department": "IT Service Desk",
+    "secondary_departments": [
+     "Study Office (Faculty Registrar)"
+    ],
+    "kb_ids": [
+     "KB-IT-01"
+    ],
+    "requires_human_approval": false,
+    "reason": "The issue is a campus Wi‑Fi outage affecting an imminent exam; IT Service Desk handles network problems and can provide immediate support, while the Study Office should be notified for potential exam impact."
+   }
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "decision:routing",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:50+00:00",
+   "decision": "IT Service Desk",
+   "summary": "IT Service Desk - The issue is a campus Wi‑Fi outage affecting an imminent exam; IT Service Desk handles network problems and can provide immediate support, while the Study Office should be notified for potential exam impact."
+  },
+  {
+   "step": 3,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:50+00:00"
+  },
+  {
+   "step": 3,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:51+00:00",
+   "duration_ms": 1326,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "7 steps, refs ['KB-IT-01', 'KB-EXAM-01']",
+   "output": {
+    "diagnosis": "Likely a campus Wi‑Fi outage affecting the student’s device, which is critical because an exam starts soon",
+    "steps": [
+     {
+      "action": "Forget the eduroam network on your device and reconnect using your full university username and password",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Check if other devices or classmates in the same room have the same Wi‑Fi problem to determine if it is a device issue or a network outage",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "If Wi‑Fi remains unavailable, switch to a temporary workaround such as a wired connection, a nearby computer lab, or a mobile hotspot",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Document the problem with time, screenshots, error messages and any witnesses (e.g., classmates) as evidence for the exam impact",
+      "owner": "student",
+      "kb_ref": "KB-EXAM-01"
+     },
+     {
+      "action": "Immediately inform your exam instructor about the Wi‑Fi issue before the exam starts, providing the documented evidence",
+      "owner": "student",
+      "kb_ref": "KB-EXAM-01"
+     },
+     {
+      "action": "Report the outage to the IT Service Desk via the ticket form or help‑desk counter, including building, room, start time, device type and error details",
+      "owner": "department",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "If the exam is disrupted, follow the Study Office procedure to submit a formal request for an academic exception, attaching the documented evidence",
+      "owner": "student",
+      "kb_ref": "KB-EXAM-01"
+     }
+    ],
+    "contact_department": "IT Service Desk",
+    "time_critical_actions": [
+     "Reconnect to eduroam after forgetting the network",
+     "Switch to a wired connection, computer lab or mobile hotspot as a temporary workaround",
+     "Inform the exam instructor immediately before the exam starts"
+    ],
+    "kb_refs": [
+     "KB-IT-01",
+     "KB-EXAM-01"
+    ],
+    "assumptions": [
+     "The student has a device capable of forgetting and reconnecting to Wi‑Fi",
+     "A wired network or hotspot is available nearby",
+     "The exam instructor can be contacted before the exam begins"
+    ],
+    "confidence": 0.93,
+    "lessons_applied": [
+     "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+     "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)",
+     "When an exam is mentioned, tell the student to inform the examiner/instructor before it starts. (auditor rejected this 1x before)",
+     "Earlier auditor remark in this category: The plan omits the KB-EXAM-01 procedure to document the problem (time, screenshots, error messages, witnesses) as evidence."
+    ]
+   }
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:51+00:00"
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:52+00:00",
+   "duration_ms": 530,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "ACCEPT - 7/7 checks passed",
+   "output": {
+    "verdict": "ACCEPT",
+    "llm_verdict": "ACCEPT",
+    "programmatic_checks": [
+     {
+      "id": "C1",
+      "name": "References exist in knowledge base",
+      "passed": true,
+      "detail": "All references valid"
+     },
+     {
+      "id": "C2",
+      "name": "Solution is grounded",
+      "passed": true,
+      "detail": "Plan cites knowledge base entries"
+     },
+     {
+      "id": "C3",
+      "name": "Solution is actionable",
+      "passed": true,
+      "detail": "7 steps provided (minimum 2)"
+     },
+     {
+      "id": "C4",
+      "name": "Urgency handled",
+      "passed": true,
+      "detail": "Time-critical actions given"
+     },
+     {
+      "id": "C5",
+      "name": "Exam impact addressed",
+      "passed": true,
+      "detail": "Plan tells the student what to do about the exam"
+     },
+     {
+      "id": "C7",
+      "name": "No invented contact details",
+      "passed": true,
+      "detail": "No unsupported contact details"
+     },
+     {
+      "id": "C8",
+      "name": "Department consistent with routing",
+      "passed": true,
+      "detail": "Contact department 'IT Service Desk'"
+     }
+    ],
+    "checks_passed": 7,
+    "checks_total": 7,
+    "scores": {
+     "accuracy": 5,
+     "relevance": 5,
+     "completeness": 5,
+     "groundedness": 5
+    },
+    "issues": [],
+    "feedback": []
+   }
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "decision:audit",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:52+00:00",
+   "decision": "ACCEPT",
+   "summary": "ACCEPT - All checks passed"
+  },
+  {
+   "step": 4,
+   "agent": "Orchestrator",
+   "action": "decision:finalize",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:52+00:00",
+   "decision": "FINALIZE",
+   "summary": "FINALIZE - Auditor accepted the plan"
+  },
+  {
+   "step": 5,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:52+00:00"
+  },
+  {
+   "step": 5,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:52+00:00",
+   "duration_ms": 417,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "Draft to IT Service Desk: Urgent Wi‑Fi outage affecting exam",
+   "output": {
+    "to_department": "IT Service Desk",
+    "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+    "subject": "Urgent Wi‑Fi outage affecting exam",
+    "body": "Hello,\nI am experiencing a university Wi‑Fi outage in [building/room] at [time]. My exam starts in one hour, so this issue is critical. Please investigate and restore connectivity as soon as possible.\nThank you,\n[Your name]\n[Student ID]",
+    "contains_invented_contacts": false,
+    "unsupported_claims": [],
+    "self_corrected": false,
+    "is_draft": true
+   }
+  }
+ ],
+ "decisions": [
+  {
+   "agent": "Triage Agent",
+   "decision_type": "classification",
+   "decision": "it_network|critical",
+   "reason": "Exam imminent",
+   "timestamp": "2026-11-21T11:28:49+00:00"
+  },
+  {
+   "agent": "Routing Agent",
+   "decision_type": "routing",
+   "decision": "IT Service Desk",
+   "reason": "The issue is a campus Wi‑Fi outage affecting an imminent exam; IT Service Desk handles network problems and can provide immediate support, while the Study Office should be notified for potential exam impact.",
+   "timestamp": "2026-11-21T11:28:50+00:00"
+  },
+  {
+   "agent": "Auditor Agent",
+   "decision_type": "audit",
+   "decision": "ACCEPT",
+   "reason": "All checks passed",
+   "timestamp": "2026-11-21T11:28:52+00:00"
+  },
+  {
+   "agent": "Orchestrator",
+   "decision_type": "finalize",
+   "decision": "FINALIZE",
+   "reason": "Auditor accepted the plan",
+   "timestamp": "2026-11-21T11:28:52+00:00"
+  }
+ ],
+ "auditor_decision": "ACCEPT",
+ "revision_count": 0,
+ "final_solution": {
+  "diagnosis": "Likely a campus Wi‑Fi outage affecting the student’s device, which is critical because an exam starts soon",
+  "steps": [
+   {
+    "action": "Forget the eduroam network on your device and reconnect using your full university username and password",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "Check if other devices or classmates in the same room have the same Wi‑Fi problem to determine if it is a device issue or a network outage",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "If Wi‑Fi remains unavailable, switch to a temporary workaround such as a wired connection, a nearby computer lab, or a mobile hotspot",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "Document the problem with time, screenshots, error messages and any witnesses (e.g., classmates) as evidence for the exam impact",
+    "owner": "student",
+    "kb_ref": "KB-EXAM-01"
+   },
+   {
+    "action": "Immediately inform your exam instructor about the Wi‑Fi issue before the exam starts, providing the documented evidence",
+    "owner": "student",
+    "kb_ref": "KB-EXAM-01"
+   },
+   {
+    "action": "Report the outage to the IT Service Desk via the ticket form or help‑desk counter, including building, room, start time, device type and error details",
+    "owner": "department",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "If the exam is disrupted, follow the Study Office procedure to submit a formal request for an academic exception, attaching the documented evidence",
+    "owner": "student",
+    "kb_ref": "KB-EXAM-01"
+   }
+  ],
+  "contact_department": "IT Service Desk",
+  "time_critical_actions": [
+   "Reconnect to eduroam after forgetting the network",
+   "Switch to a wired connection, computer lab or mobile hotspot as a temporary workaround",
+   "Inform the exam instructor immediately before the exam starts"
+  ],
+  "kb_refs": [
+   "KB-IT-01",
+   "KB-EXAM-01"
+  ],
+  "assumptions": [
+   "The student has a device capable of forgetting and reconnecting to Wi‑Fi",
+   "A wired network or hotspot is available nearby",
+   "The exam instructor can be contacted before the exam begins"
+  ],
+  "confidence": 0.93,
+  "lessons_applied": [
+   "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+   "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)",
+   "When an exam is mentioned, tell the student to inform the examiner/instructor before it starts. (auditor rejected this 1x before)",
+   "Earlier auditor remark in this category: The plan omits the KB-EXAM-01 procedure to document the problem (time, screenshots, error messages, witnesses) as evidence."
+  ],
+  "verified_by_auditor": true,
+  "note": "Verified action plan. The student and the department still need to carry it out; the system does not fix the problem physically."
+ },
+ "message_draft": {
+  "to_department": "IT Service Desk",
+  "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+  "subject": "Urgent Wi‑Fi outage affecting exam",
+  "body": "Hello,\nI am experiencing a university Wi‑Fi outage in [building/room] at [time]. My exam starts in one hour, so this issue is critical. Please investigate and restore connectivity as soon as possible.\nThank you,\n[Your name]\n[Student ID]",
+  "contains_invented_contacts": false,
+  "unsupported_claims": [],
+  "self_corrected": false,
+  "is_draft": true
+ },
+ "human_review": null,
+ "status": "solution_verified",
+ "error": null,
+ "kb_notice": "DEMO DATA. Illustrative university support knowledge base written for the hackathon. It is NOT official University of Debrecen information and contains no real contact details.",
+ "input_guard": {
+  "truncated": false,
+  "injection_suspected": false,
+  "patterns": []
+ },
+ "language": "English",
+ "location": null,
+ "incident": null,
+ "execution_mode": "live_llm",
+ "providers_used": [
+  "groq"
+ ],
+ "autonomy_metrics": {
+  "agents_executed": 5,
+  "autonomous_decisions": 4,
+  "auditor_rejections": 0,
+  "revision_attempts": 0,
+  "human_escalations": 0,
+  "incident_detected": false,
+  "llm_calls_live": 5,
+  "llm_calls_simulated": 0,
+  "total_execution_time_ms": 3375
+ }
+}

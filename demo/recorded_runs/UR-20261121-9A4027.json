@@ -1,0 +1,627 @@
+{
+ "ticket_id": "UR-20261121-9A4027",
+ "created_at": "2026-11-21T11:28:54+00:00",
+ "original_input": "I was sick and need to reschedule my calculus exam to a new date.",
+ "requested_mode": "auto",
+ "category": "exams_academic",
+ "priority": "high",
+ "assigned_department": "Study Office (Faculty Registrar)",
+ "workflow": "exams_academic",
+ "requires_human_approval": true,
+ "agent_results": {
+  "triage": {
+   "summary": "Student requests to reschedule a calculus exam due to illness.",
+   "category": "exams_academic",
+   "urgency": "high",
+   "urgency_reason": "Exam rescheduling due to illness",
+   "time_sensitive": true,
+   "safety_risk": false,
+   "key_facts": [
+    "sick",
+    "needs to reschedule calculus exam"
+   ],
+   "location": "",
+   "exam_involved": true,
+   "is_support_request": true,
+   "language": "English"
+  },
+  "routing": {
+   "workflow": "exams_academic",
+   "department": "Study Office (Faculty Registrar)",
+   "secondary_departments": [
+    "University Health Service"
+   ],
+   "kb_ids": [
+    "KB-EXAM-01",
+    "KB-HEALTH-01"
+   ],
+   "requires_human_approval": true,
+   "reason": "The student requests an exam reschedule due to illness, which requires formal academic approval and a medical certificate. The Study Office handles exam exceptions, while the Health Service should be notified for the medical documentation."
+  },
+  "resolution_attempts": [
+   {
+    "attempt": 1,
+    "solution": {
+     "diagnosis": "Student is ill and needs to obtain a medical certificate and submit a formal exam rescheduling request",
+     "steps": [
+      {
+       "action": "Visit the University Health Service or a general practitioner to obtain a medical certificate covering the illness period",
+       "owner": "student",
+       "kb_ref": "KB-HEALTH-01"
+      },
+      {
+       "action": "Submit a formal exam rescheduling request through the official student administration system, attaching the medical certificate",
+       "owner": "student",
+       "kb_ref": "KB-EXAM-01"
+      },
+      {
+       "action": "Notify the course instructor of the situation and forward the request to the Study Office for approval",
+       "owner": "student",
+       "kb_ref": "KB-EXAM-01"
+      },
+      {
+       "action": "Study Office reviews the request and decides on a new exam date or alternative arrangement",
+       "owner": "department",
+       "kb_ref": "KB-EXAM-01"
+      }
+     ],
+     "contact_department": "Study Office (Faculty Registrar)",
+     "time_critical_actions": [
+      "Obtain a medical certificate promptly from the University Health Service or a GP",
+      "Submit the formal rescheduling request with the certificate as soon as possible"
+     ],
+     "kb_refs": [
+      "KB-HEALTH-01",
+      "KB-EXAM-01"
+     ],
+     "assumptions": [
+      "Student can access the University Health Service during its opening hours",
+      "The student has access to the official student administration system to submit the request"
+     ],
+     "confidence": 0.97,
+     "lessons_applied": [
+      "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+      "Back every step with a knowledge base entry; if none applies, say the case needs a human. (auditor rejected this 7x before)",
+      "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)"
+     ]
+    },
+    "audit": {
+     "verdict": "ACCEPT",
+     "llm_verdict": "ACCEPT",
+     "programmatic_checks": [
+      {
+       "id": "C1",
+       "name": "References exist in knowledge base",
+       "passed": true,
+       "detail": "All references valid"
+      },
+      {
+       "id": "C2",
+       "name": "Solution is grounded",
+       "passed": true,
+       "detail": "Plan cites knowledge base entries"
+      },
+      {
+       "id": "C3",
+       "name": "Solution is actionable",
+       "passed": true,
+       "detail": "4 steps provided (minimum 2)"
+      },
+      {
+       "id": "C4",
+       "name": "Urgency handled",
+       "passed": true,
+       "detail": "Time-critical actions given"
+      },
+      {
+       "id": "C5",
+       "name": "Exam impact addressed",
+       "passed": true,
+       "detail": "Plan tells the student what to do about the exam"
+      },
+      {
+       "id": "C7",
+       "name": "No invented contact details",
+       "passed": true,
+       "detail": "No unsupported contact details"
+      },
+      {
+       "id": "C8",
+       "name": "Department consistent with routing",
+       "passed": true,
+       "detail": "Contact department 'Study Office (Faculty Registrar)'"
+      }
+     ],
+     "checks_passed": 7,
+     "checks_total": 7,
+     "scores": {
+      "accuracy": 5,
+      "relevance": 5,
+      "completeness": 5,
+      "groundedness": 5
+     },
+     "issues": [],
+     "feedback": []
+    }
+   }
+  ],
+  "auditor": {
+   "verdict": "ACCEPT",
+   "llm_verdict": "ACCEPT",
+   "programmatic_checks": [
+    {
+     "id": "C1",
+     "name": "References exist in knowledge base",
+     "passed": true,
+     "detail": "All references valid"
+    },
+    {
+     "id": "C2",
+     "name": "Solution is grounded",
+     "passed": true,
+     "detail": "Plan cites knowledge base entries"
+    },
+    {
+     "id": "C3",
+     "name": "Solution is actionable",
+     "passed": true,
+     "detail": "4 steps provided (minimum 2)"
+    },
+    {
+     "id": "C4",
+     "name": "Urgency handled",
+     "passed": true,
+     "detail": "Time-critical actions given"
+    },
+    {
+     "id": "C5",
+     "name": "Exam impact addressed",
+     "passed": true,
+     "detail": "Plan tells the student what to do about the exam"
+    },
+    {
+     "id": "C7",
+     "name": "No invented contact details",
+     "passed": true,
+     "detail": "No unsupported contact details"
+    },
+    {
+     "id": "C8",
+     "name": "Department consistent with routing",
+     "passed": true,
+     "detail": "Contact department 'Study Office (Faculty Registrar)'"
+    }
+   ],
+   "checks_passed": 7,
+   "checks_total": 7,
+   "scores": {
+    "accuracy": 5,
+    "relevance": 5,
+    "completeness": 5,
+    "groundedness": 5
+   },
+   "issues": [],
+   "feedback": []
+  },
+  "communication": {
+   "to_department": "Study Office (Faculty Registrar)",
+   "channel": "Course instructor, then the faculty Study Office",
+   "subject": "Request to Reschedule Calculus Exam Due to Illness",
+   "body": "Dear Study Office,\nI am writing to request a rescheduling of my upcoming calculus exam because I am currently ill. I will obtain a medical certificate and submit a formal rescheduling request through the student administration system as soon as possible. Please advise on the next steps and any required documentation.\nThank you,\n[Your name]\n[student ID]",
+   "contains_invented_contacts": false,
+   "unsupported_claims": [],
+   "self_corrected": false,
+   "is_draft": true
+  }
+ },
+ "execution_trace": [
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:54+00:00"
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:55+00:00",
+   "duration_ms": 729,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "exams_academic / urgency high",
+   "output": {
+    "summary": "Student requests to reschedule a calculus exam due to illness.",
+    "category": "exams_academic",
+    "urgency": "high",
+    "urgency_reason": "Exam rescheduling due to illness",
+    "time_sensitive": true,
+    "safety_risk": false,
+    "key_facts": [
+     "sick",
+     "needs to reschedule calculus exam"
+    ],
+    "location": "",
+    "exam_involved": true,
+    "is_support_request": true,
+    "language": "English"
+   }
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "decision:classification",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:55+00:00",
+   "decision": "exams_academic|high",
+   "summary": "exams_academic|high - Exam rescheduling due to illness"
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:55+00:00"
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:55+00:00",
+   "duration_ms": 433,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "Study Office (Faculty Registrar) (KB-EXAM-01, KB-HEALTH-01)",
+   "output": {
+    "workflow": "exams_academic",
+    "department": "Study Office (Faculty Registrar)",
+    "secondary_departments": [
+     "University Health Service"
+    ],
+    "kb_ids": [
+     "KB-EXAM-01",
+     "KB-HEALTH-01"
+    ],
+    "requires_human_approval": true,
+    "reason": "The student requests an exam reschedule due to illness, which requires formal academic approval and a medical certificate. The Study Office handles exam exceptions, while the Health Service should be notified for the medical documentation."
+   }
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "decision:routing",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:55+00:00",
+   "decision": "Study Office (Faculty Registrar)",
+   "summary": "Study Office (Faculty Registrar) - The student requests an exam reschedule due to illness, which requires formal academic approval and a medical certificate. The Study Office handles exam exceptions, while the Health Service should be notified for the medical documentation."
+  },
+  {
+   "step": 2,
+   "agent": "Routing Agent",
+   "action": "decision:human_approval_required",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:55+00:00",
+   "decision": "YES",
+   "summary": "YES - Outcome requires a staff decision; system will not act autonomously on it"
+  },
+  {
+   "step": 3,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:55+00:00"
+  },
+  {
+   "step": 3,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:56+00:00",
+   "duration_ms": 1054,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "4 steps, refs ['KB-HEALTH-01', 'KB-EXAM-01']",
+   "output": {
+    "diagnosis": "Student is ill and needs to obtain a medical certificate and submit a formal exam rescheduling request",
+    "steps": [
+     {
+      "action": "Visit the University Health Service or a general practitioner to obtain a medical certificate covering the illness period",
+      "owner": "student",
+      "kb_ref": "KB-HEALTH-01"
+     },
+     {
+      "action": "Submit a formal exam rescheduling request through the official student administration system, attaching the medical certificate",
+      "owner": "student",
+      "kb_ref": "KB-EXAM-01"
+     },
+     {
+      "action": "Notify the course instructor of the situation and forward the request to the Study Office for approval",
+      "owner": "student",
+      "kb_ref": "KB-EXAM-01"
+     },
+     {
+      "action": "Study Office reviews the request and decides on a new exam date or alternative arrangement",
+      "owner": "department",
+      "kb_ref": "KB-EXAM-01"
+     }
+    ],
+    "contact_department": "Study Office (Faculty Registrar)",
+    "time_critical_actions": [
+     "Obtain a medical certificate promptly from the University Health Service or a GP",
+     "Submit the formal rescheduling request with the certificate as soon as possible"
+    ],
+    "kb_refs": [
+     "KB-HEALTH-01",
+     "KB-EXAM-01"
+    ],
+    "assumptions": [
+     "Student can access the University Health Service during its opening hours",
+     "The student has access to the official student administration system to submit the request"
+    ],
+    "confidence": 0.97,
+    "lessons_applied": [
+     "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+     "Back every step with a knowledge base entry; if none applies, say the case needs a human. (auditor rejected this 7x before)",
+     "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)"
+    ]
+   }
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:56+00:00"
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:57+00:00",
+   "duration_ms": 415,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "ACCEPT - 7/7 checks passed",
+   "output": {
+    "verdict": "ACCEPT",
+    "llm_verdict": "ACCEPT",
+    "programmatic_checks": [
+     {
+      "id": "C1",
+      "name": "References exist in knowledge base",
+      "passed": true,
+      "detail": "All references valid"
+     },
+     {
+      "id": "C2",
+      "name": "Solution is grounded",
+      "passed": true,
+      "detail": "Plan cites knowledge base entries"
+     },
+     {
+      "id": "C3",
+      "name": "Solution is actionable",
+      "passed": true,
+      "detail": "4 steps provided (minimum 2)"
+     },
+     {
+      "id": "C4",
+      "name": "Urgency handled",
+      "passed": true,
+      "detail": "Time-critical actions given"
+     },
+     {
+      "id": "C5",
+      "name": "Exam impact addressed",
+      "passed": true,
+      "detail": "Plan tells the student what to do about the exam"
+     },
+     {
+      "id": "C7",
+      "name": "No invented contact details",
+      "passed": true,
+      "detail": "No unsupported contact details"
+     },
+     {
+      "id": "C8",
+      "name": "Department consistent with routing",
+      "passed": true,
+      "detail": "Contact department 'Study Office (Faculty Registrar)'"
+     }
+    ],
+    "checks_passed": 7,
+    "checks_total": 7,
+    "scores": {
+     "accuracy": 5,
+     "relevance": 5,
+     "completeness": 5,
+     "groundedness": 5
+    },
+    "issues": [],
+    "feedback": []
+   }
+  },
+  {
+   "step": 4,
+   "agent": "Auditor Agent",
+   "action": "decision:audit",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:57+00:00",
+   "decision": "ACCEPT",
+   "summary": "ACCEPT - All checks passed"
+  },
+  {
+   "step": 4,
+   "agent": "Orchestrator",
+   "action": "decision:escalation",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:28:57+00:00",
+   "decision": "AWAIT_HUMAN_APPROVAL",
+   "summary": "AWAIT_HUMAN_APPROVAL - Policy: staff decision required"
+  },
+  {
+   "step": 5,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:28:57+00:00"
+  },
+  {
+   "step": 5,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:28:57+00:00",
+   "duration_ms": 418,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "Draft to Study Office (Faculty Registrar): Request to Reschedule Calculus Exam Due to Illness",
+   "output": {
+    "to_department": "Study Office (Faculty Registrar)",
+    "channel": "Course instructor, then the faculty Study Office",
+    "subject": "Request to Reschedule Calculus Exam Due to Illness",
+    "body": "Dear Study Office,\nI am writing to request a rescheduling of my upcoming calculus exam because I am currently ill. I will obtain a medical certificate and submit a formal rescheduling request through the student administration system as soon as possible. Please advise on the next steps and any required documentation.\nThank you,\n[Your name]\n[student ID]",
+    "contains_invented_contacts": false,
+    "unsupported_claims": [],
+    "self_corrected": false,
+    "is_draft": true
+   }
+  }
+ ],
+ "decisions": [
+  {
+   "agent": "Triage Agent",
+   "decision_type": "classification",
+   "decision": "exams_academic|high",
+   "reason": "Exam rescheduling due to illness",
+   "timestamp": "2026-11-21T11:28:55+00:00"
+  },
+  {
+   "agent": "Routing Agent",
+   "decision_type": "routing",
+   "decision": "Study Office (Faculty Registrar)",
+   "reason": "The student requests an exam reschedule due to illness, which requires formal academic approval and a medical certificate. The Study Office handles exam exceptions, while the Health Service should be notified for the medical documentation.",
+   "timestamp": "2026-11-21T11:28:55+00:00"
+  },
+  {
+   "agent": "Routing Agent",
+   "decision_type": "human_approval_required",
+   "decision": "YES",
+   "reason": "Outcome requires a staff decision; system will not act autonomously on it",
+   "timestamp": "2026-11-21T11:28:55+00:00"
+  },
+  {
+   "agent": "Auditor Agent",
+   "decision_type": "audit",
+   "decision": "ACCEPT",
+   "reason": "All checks passed",
+   "timestamp": "2026-11-21T11:28:57+00:00"
+  },
+  {
+   "agent": "Orchestrator",
+   "decision_type": "escalation",
+   "decision": "AWAIT_HUMAN_APPROVAL",
+   "reason": "Policy: staff decision required",
+   "timestamp": "2026-11-21T11:28:57+00:00"
+  }
+ ],
+ "auditor_decision": "ACCEPT",
+ "revision_count": 0,
+ "final_solution": {
+  "diagnosis": "Student is ill and needs to obtain a medical certificate and submit a formal exam rescheduling request",
+  "steps": [
+   {
+    "action": "Visit the University Health Service or a general practitioner to obtain a medical certificate covering the illness period",
+    "owner": "student",
+    "kb_ref": "KB-HEALTH-01"
+   },
+   {
+    "action": "Submit a formal exam rescheduling request through the official student administration system, attaching the medical certificate",
+    "owner": "student",
+    "kb_ref": "KB-EXAM-01"
+   },
+   {
+    "action": "Notify the course instructor of the situation and forward the request to the Study Office for approval",
+    "owner": "student",
+    "kb_ref": "KB-EXAM-01"
+   },
+   {
+    "action": "Study Office reviews the request and decides on a new exam date or alternative arrangement",
+    "owner": "department",
+    "kb_ref": "KB-EXAM-01"
+   }
+  ],
+  "contact_department": "Study Office (Faculty Registrar)",
+  "time_critical_actions": [
+   "Obtain a medical certificate promptly from the University Health Service or a GP",
+   "Submit the formal rescheduling request with the certificate as soon as possible"
+  ],
+  "kb_refs": [
+   "KB-HEALTH-01",
+   "KB-EXAM-01"
+  ],
+  "assumptions": [
+   "Student can access the University Health Service during its opening hours",
+   "The student has access to the official student administration system to submit the request"
+  ],
+  "confidence": 0.97,
+  "lessons_applied": [
+   "For urgent or time-sensitive cases, fill time_critical_actions with what must happen first. (auditor rejected this 6x before)",
+   "Back every step with a knowledge base entry; if none applies, say the case needs a human. (auditor rejected this 7x before)",
+   "contact_department must be exactly one of the routed department names. (auditor rejected this 3x before)"
+  ],
+  "verified_by_auditor": true,
+  "note": "Plan verified by the auditor. The requested outcome needs a staff decision; the case is queued for human approval."
+ },
+ "message_draft": {
+  "to_department": "Study Office (Faculty Registrar)",
+  "channel": "Course instructor, then the faculty Study Office",
+  "subject": "Request to Reschedule Calculus Exam Due to Illness",
+  "body": "Dear Study Office,\nI am writing to request a rescheduling of my upcoming calculus exam because I am currently ill. I will obtain a medical certificate and submit a formal rescheduling request through the student administration system as soon as possible. Please advise on the next steps and any required documentation.\nThank you,\n[Your name]\n[student ID]",
+  "contains_invented_contacts": false,
+  "unsupported_claims": [],
+  "self_corrected": false,
+  "is_draft": true
+ },
+ "human_review": null,
+ "status": "awaiting_human_approval",
+ "error": null,
+ "kb_notice": "DEMO DATA. Illustrative university support knowledge base written for the hackathon. It is NOT official University of Debrecen information and contains no real contact details.",
+ "input_guard": {
+  "truncated": false,
+  "injection_suspected": false,
+  "patterns": []
+ },
+ "language": "English",
+ "location": null,
+ "incident": null,
+ "execution_mode": "live_llm",
+ "providers_used": [
+  "groq"
+ ],
+ "autonomy_metrics": {
+  "agents_executed": 5,
+  "autonomous_decisions": 5,
+  "auditor_rejections": 0,
+  "revision_attempts": 0,
+  "human_escalations": 1,
+  "incident_detected": false,
+  "llm_calls_live": 5,
+  "llm_calls_simulated": 0,
+  "total_execution_time_ms": 3056
+ }
+}

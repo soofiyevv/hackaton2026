@@ -6,7 +6,8 @@ Owner: backend (`backend/`). The frontend imports **only** these functions and m
 from backend import (process_ticket, get_ticket, get_ticket_history,
                      get_dashboard_stats, get_system_status,
                      review_ticket, get_pending_reviews, check_models, replay_ticket,
-                     get_incidents, close_incident, get_lessons_learned, get_analytics)
+                     get_incidents, close_incident, get_lessons_learned, get_analytics,
+                     get_recorded_runs)
 ```
 
 Run Streamlit from the repository root (`streamlit run frontend/app.py`). If `import backend` fails, add the repo root to `sys.path` at the top of `app.py`:
@@ -68,6 +69,8 @@ Real tiny API call to every configured model (a few seconds). For a **System sta
 Plays back a **previously recorded run** event by event with its original pacing (each pause capped at 2.5 s; `speed=0` = instant).
 No LLM call, nothing recomputed. Returned ticket has `"replay": true` and `"recorded_at"`, and every event has `"replay": true`.
 **UI must show a clear "RECORDED RUN - recorded at HH:MM" label.** Use as a backup if the network fails during the pitch.
+Works on any machine for runs shipped in `demo/recorded_runs/`: list them with `get_recorded_runs()`
+(`[{ticket_id, created_at, original_input, status, execution_mode, revision_count}]`) for a "Backup demo" selector.
 
 ### `get_incidents(open_only=True) -> list[dict]` / `close_incident(incident_id)`
 Campus incidents found by the **Incident Agent**: when 3+ students report the same category at an overlapping

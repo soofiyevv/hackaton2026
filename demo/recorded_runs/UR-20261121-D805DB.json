@@ -1,0 +1,903 @@
+{
+ "ticket_id": "UR-20261121-D805DB",
+ "created_at": "2026-11-21T11:00:45+00:00",
+ "original_input": "Eduroam not working at the library, I cannot connect at all",
+ "requested_mode": "auto",
+ "category": "it_network",
+ "priority": "high",
+ "assigned_department": "IT Service Desk",
+ "workflow": "it_network",
+ "requires_human_approval": false,
+ "agent_results": {
+  "triage": {
+   "summary": "Student reports inability to connect to Eduroam at the library",
+   "category": "it_network",
+   "urgency": "high",
+   "urgency_reason": "Network connectivity issue affecting study",
+   "time_sensitive": false,
+   "safety_risk": false,
+   "key_facts": [
+    "Eduroam not working",
+    "at the library",
+    "cannot connect"
+   ],
+   "location": "library",
+   "exam_involved": false,
+   "is_support_request": true,
+   "language": "English",
+   "incident_note": "3 students reported this at library within 60 min: probable shared outage, not an individual problem. Say so in the plan."
+  },
+  "incident_check": {
+   "same_incident": true,
+   "matching_ticket_ids": [
+    "UR-20261121-2AB5E6",
+    "UR-20261121-B4C3A4"
+   ],
+   "title": "Eduroam outage - Library",
+   "reason": "Both reports describe a Wi‑Fi connectivity failure at the library, indicating the same underlying incident."
+  },
+  "routing": {
+   "workflow": "it_network",
+   "department": "IT Service Desk",
+   "secondary_departments": [],
+   "kb_ids": [
+    "KB-IT-01"
+   ],
+   "requires_human_approval": false,
+   "reason": "The issue is a campus Wi‑Fi outage affecting multiple students at the library, which falls under IT Service Desk’s scope for eduroam problems. No staff decision is required beyond standard IT troubleshooting."
+  },
+  "resolution_attempts": [
+   {
+    "attempt": 1,
+    "solution": {
+     "diagnosis": "Likely a campus‑wide Eduroam outage in the library affecting multiple students",
+     "steps": [
+      {
+       "action": "Forget the Eduroam network on your device and reconnect using your full university username and password",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Verify whether other devices or classmates can connect to Eduroam in the same area to confirm a network‑wide issue",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Use a temporary workaround such as a wired Ethernet connection, a nearby computer lab, or a mobile hotspot until the outage is resolved",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Report the outage to the IT Service Desk, providing building (library), approximate start time, device type, and any error messages you see",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      }
+     ],
+     "contact_department": "IT Service Desk",
+     "time_critical_actions": [],
+     "kb_refs": [
+      "KB-IT-01"
+     ],
+     "assumptions": [
+      "The problem is not limited to a single device since multiple students reported it",
+      "The student has access to an alternative network option for a temporary workaround"
+     ],
+     "confidence": 0.97
+    },
+    "audit": {
+     "verdict": "REJECT",
+     "llm_verdict": "ACCEPT",
+     "programmatic_checks": [
+      {
+       "id": "C1",
+       "name": "References exist in knowledge base",
+       "passed": true,
+       "detail": "All references valid"
+      },
+      {
+       "id": "C2",
+       "name": "Solution is grounded",
+       "passed": true,
+       "detail": "Plan cites knowledge base entries"
+      },
+      {
+       "id": "C3",
+       "name": "Solution is actionable",
+       "passed": true,
+       "detail": "4 steps provided (minimum 2)"
+      },
+      {
+       "id": "C4",
+       "name": "Urgency handled",
+       "passed": false,
+       "detail": "Urgency is 'high' / time-sensitive but no time-critical actions were given"
+      },
+      {
+       "id": "C7",
+       "name": "No invented contact details",
+       "passed": true,
+       "detail": "No unsupported contact details"
+      },
+      {
+       "id": "C8",
+       "name": "Department consistent with routing",
+       "passed": true,
+       "detail": "Contact department 'IT Service Desk'"
+      }
+     ],
+     "checks_passed": 5,
+     "checks_total": 6,
+     "scores": {
+      "accuracy": 5,
+      "relevance": 5,
+      "completeness": 5,
+      "groundedness": 5
+     },
+     "issues": [],
+     "feedback": [
+      "[C4] Urgency is 'high' / time-sensitive but no time-critical actions were given"
+     ]
+    }
+   },
+   {
+    "attempt": 2,
+    "solution": {
+     "diagnosis": "Likely a library‑wide Eduroam outage affecting multiple students",
+     "steps": [
+      {
+       "action": "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Forget the Eduroam network on your device and reconnect using your full university username and password",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Check whether other devices or classmates can connect to Eduroam in the same area to confirm a network‑wide issue",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      },
+      {
+       "action": "Use a temporary workaround such as a wired Ethernet connection, a nearby computer lab, or a mobile hotspot until the outage is resolved",
+       "owner": "student",
+       "kb_ref": "KB-IT-01"
+      }
+     ],
+     "contact_department": "IT Service Desk",
+     "time_critical_actions": [
+      "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see"
+     ],
+     "kb_refs": [
+      "KB-IT-01"
+     ],
+     "assumptions": [
+      "Multiple students are experiencing the same issue, indicating a network outage rather than a single device problem",
+      "The student has access to an alternative network option for a temporary workaround"
+     ],
+     "confidence": 0.97
+    },
+    "audit": {
+     "verdict": "ACCEPT",
+     "llm_verdict": "ACCEPT",
+     "programmatic_checks": [
+      {
+       "id": "C1",
+       "name": "References exist in knowledge base",
+       "passed": true,
+       "detail": "All references valid"
+      },
+      {
+       "id": "C2",
+       "name": "Solution is grounded",
+       "passed": true,
+       "detail": "Plan cites knowledge base entries"
+      },
+      {
+       "id": "C3",
+       "name": "Solution is actionable",
+       "passed": true,
+       "detail": "4 steps provided (minimum 2)"
+      },
+      {
+       "id": "C4",
+       "name": "Urgency handled",
+       "passed": true,
+       "detail": "Time-critical actions given"
+      },
+      {
+       "id": "C7",
+       "name": "No invented contact details",
+       "passed": true,
+       "detail": "No unsupported contact details"
+      },
+      {
+       "id": "C8",
+       "name": "Department consistent with routing",
+       "passed": true,
+       "detail": "Contact department 'IT Service Desk'"
+      }
+     ],
+     "checks_passed": 6,
+     "checks_total": 6,
+     "scores": {
+      "accuracy": 5,
+      "relevance": 5,
+      "completeness": 5,
+      "groundedness": 5
+     },
+     "issues": [],
+     "feedback": []
+    }
+   }
+  ],
+  "auditor": {
+   "verdict": "ACCEPT",
+   "llm_verdict": "ACCEPT",
+   "programmatic_checks": [
+    {
+     "id": "C1",
+     "name": "References exist in knowledge base",
+     "passed": true,
+     "detail": "All references valid"
+    },
+    {
+     "id": "C2",
+     "name": "Solution is grounded",
+     "passed": true,
+     "detail": "Plan cites knowledge base entries"
+    },
+    {
+     "id": "C3",
+     "name": "Solution is actionable",
+     "passed": true,
+     "detail": "4 steps provided (minimum 2)"
+    },
+    {
+     "id": "C4",
+     "name": "Urgency handled",
+     "passed": true,
+     "detail": "Time-critical actions given"
+    },
+    {
+     "id": "C7",
+     "name": "No invented contact details",
+     "passed": true,
+     "detail": "No unsupported contact details"
+    },
+    {
+     "id": "C8",
+     "name": "Department consistent with routing",
+     "passed": true,
+     "detail": "Contact department 'IT Service Desk'"
+    }
+   ],
+   "checks_passed": 6,
+   "checks_total": 6,
+   "scores": {
+    "accuracy": 5,
+    "relevance": 5,
+    "completeness": 5,
+    "groundedness": 5
+   },
+   "issues": [],
+   "feedback": []
+  },
+  "communication": {
+   "to_department": "IT Service Desk",
+   "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+   "subject": "Eduroam connectivity issue at the library",
+   "body": "Dear IT Service Desk,\nI am experiencing an Eduroam connectivity issue at the library. I cannot connect to the network and suspect a library-wide outage. I will report the outage immediately, providing the building, approximate start time, device type, and any error messages. I will also forget the Eduroam network on my device and attempt to reconnect using my full university username and password. I will check if other devices or classmates can connect to confirm a network-wide issue. I will use a temporary workaround such as a wired Ethernet connection or a nearby computer lab until the issue is resolved.\nThank you,\n[Your name]\n[Student ID]",
+   "contains_invented_contacts": false,
+   "unsupported_claims": [],
+   "self_corrected": false,
+   "is_draft": true
+  }
+ },
+ "execution_trace": [
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:45+00:00"
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "Classify problem, category and urgency",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:46+00:00",
+   "duration_ms": 488,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "it_network / urgency medium",
+   "output": {
+    "summary": "Student reports inability to connect to Eduroam at the library",
+    "category": "it_network",
+    "urgency": "medium",
+    "urgency_reason": "Network connectivity issue affecting study",
+    "time_sensitive": false,
+    "safety_risk": false,
+    "key_facts": [
+     "Eduroam not working",
+     "at the library",
+     "cannot connect"
+    ],
+    "location": "library",
+    "exam_involved": false,
+    "is_support_request": true,
+    "language": "English"
+   }
+  },
+  {
+   "step": 1,
+   "agent": "Triage Agent",
+   "action": "decision:classification",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:46+00:00",
+   "decision": "it_network|medium",
+   "summary": "it_network|medium - Network connectivity issue affecting study"
+  },
+  {
+   "step": 2,
+   "agent": "Incident Agent",
+   "action": "Compare with 2 recent similar report(s)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:46+00:00"
+  },
+  {
+   "step": 2,
+   "agent": "Incident Agent",
+   "action": "Compare with 2 recent similar report(s)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:46+00:00",
+   "duration_ms": 410,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "SAME INCIDENT: Eduroam outage - Library",
+   "output": {
+    "same_incident": true,
+    "matching_ticket_ids": [
+     "UR-20261121-2AB5E6",
+     "UR-20261121-B4C3A4"
+    ],
+    "title": "Eduroam outage - Library",
+    "reason": "Both reports describe a Wi‑Fi connectivity failure at the library, indicating the same underlying incident."
+   }
+  },
+  {
+   "step": 2,
+   "agent": "Incident Agent",
+   "action": "decision:incident",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:46+00:00",
+   "decision": "INCIDENT_DETECTED",
+   "summary": "INCIDENT_DETECTED - Both reports describe a Wi‑Fi connectivity failure at the library, indicating the same underlying incident. Urgency medium -> high"
+  },
+  {
+   "step": 3,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:46+00:00"
+  },
+  {
+   "step": 3,
+   "agent": "Routing Agent",
+   "action": "Select workflow and owning department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:47+00:00",
+   "duration_ms": 411,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "IT Service Desk (KB-IT-01)",
+   "output": {
+    "workflow": "it_network",
+    "department": "IT Service Desk",
+    "secondary_departments": [],
+    "kb_ids": [
+     "KB-IT-01"
+    ],
+    "requires_human_approval": false,
+    "reason": "The issue is a campus Wi‑Fi outage affecting multiple students at the library, which falls under IT Service Desk’s scope for eduroam problems. No staff decision is required beyond standard IT troubleshooting."
+   }
+  },
+  {
+   "step": 3,
+   "agent": "Routing Agent",
+   "action": "decision:routing",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:47+00:00",
+   "decision": "IT Service Desk",
+   "summary": "IT Service Desk - The issue is a campus Wi‑Fi outage affecting multiple students at the library, which falls under IT Service Desk’s scope for eduroam problems. No staff decision is required beyond standard IT troubleshooting."
+  },
+  {
+   "step": 4,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:47+00:00"
+  },
+  {
+   "step": 4,
+   "agent": "Resolution Agent",
+   "action": "Draft resolution plan",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:48+00:00",
+   "duration_ms": 1240,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "4 steps, refs ['KB-IT-01']",
+   "output": {
+    "diagnosis": "Likely a campus‑wide Eduroam outage in the library affecting multiple students",
+    "steps": [
+     {
+      "action": "Forget the Eduroam network on your device and reconnect using your full university username and password",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Verify whether other devices or classmates can connect to Eduroam in the same area to confirm a network‑wide issue",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Use a temporary workaround such as a wired Ethernet connection, a nearby computer lab, or a mobile hotspot until the outage is resolved",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Report the outage to the IT Service Desk, providing building (library), approximate start time, device type, and any error messages you see",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     }
+    ],
+    "contact_department": "IT Service Desk",
+    "time_critical_actions": [],
+    "kb_refs": [
+     "KB-IT-01"
+    ],
+    "assumptions": [
+     "The problem is not limited to a single device since multiple students reported it",
+     "The student has access to an alternative network option for a temporary workaround"
+    ],
+    "confidence": 0.97
+   }
+  },
+  {
+   "step": 5,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:48+00:00"
+  },
+  {
+   "step": 5,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 1)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:48+00:00",
+   "duration_ms": 438,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "REJECT - 5/6 checks passed",
+   "output": {
+    "verdict": "REJECT",
+    "llm_verdict": "ACCEPT",
+    "programmatic_checks": [
+     {
+      "id": "C1",
+      "name": "References exist in knowledge base",
+      "passed": true,
+      "detail": "All references valid"
+     },
+     {
+      "id": "C2",
+      "name": "Solution is grounded",
+      "passed": true,
+      "detail": "Plan cites knowledge base entries"
+     },
+     {
+      "id": "C3",
+      "name": "Solution is actionable",
+      "passed": true,
+      "detail": "4 steps provided (minimum 2)"
+     },
+     {
+      "id": "C4",
+      "name": "Urgency handled",
+      "passed": false,
+      "detail": "Urgency is 'high' / time-sensitive but no time-critical actions were given"
+     },
+     {
+      "id": "C7",
+      "name": "No invented contact details",
+      "passed": true,
+      "detail": "No unsupported contact details"
+     },
+     {
+      "id": "C8",
+      "name": "Department consistent with routing",
+      "passed": true,
+      "detail": "Contact department 'IT Service Desk'"
+     }
+    ],
+    "checks_passed": 5,
+    "checks_total": 6,
+    "scores": {
+     "accuracy": 5,
+     "relevance": 5,
+     "completeness": 5,
+     "groundedness": 5
+    },
+    "issues": [],
+    "feedback": [
+     "[C4] Urgency is 'high' / time-sensitive but no time-critical actions were given"
+    ]
+   }
+  },
+  {
+   "step": 5,
+   "agent": "Auditor Agent",
+   "action": "decision:audit",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:48+00:00",
+   "decision": "REJECT",
+   "summary": "REJECT - [C4] Urgency is 'high' / time-sensitive but no time-critical actions were given"
+  },
+  {
+   "step": 5,
+   "agent": "Orchestrator",
+   "action": "decision:retry",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:48+00:00",
+   "decision": "REVISE",
+   "summary": "REVISE - Auditor rejected; sending 1 feedback item(s) back (revision 1/2)"
+  },
+  {
+   "step": 6,
+   "agent": "Resolution Agent",
+   "action": "Revise plan (revision 1)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:48+00:00"
+  },
+  {
+   "step": 6,
+   "agent": "Resolution Agent",
+   "action": "Revise plan (revision 1)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:49+00:00",
+   "duration_ms": 893,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "4 steps, refs ['KB-IT-01']",
+   "output": {
+    "diagnosis": "Likely a library‑wide Eduroam outage affecting multiple students",
+    "steps": [
+     {
+      "action": "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Forget the Eduroam network on your device and reconnect using your full university username and password",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Check whether other devices or classmates can connect to Eduroam in the same area to confirm a network‑wide issue",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     },
+     {
+      "action": "Use a temporary workaround such as a wired Ethernet connection, a nearby computer lab, or a mobile hotspot until the outage is resolved",
+      "owner": "student",
+      "kb_ref": "KB-IT-01"
+     }
+    ],
+    "contact_department": "IT Service Desk",
+    "time_critical_actions": [
+     "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see"
+    ],
+    "kb_refs": [
+     "KB-IT-01"
+    ],
+    "assumptions": [
+     "Multiple students are experiencing the same issue, indicating a network outage rather than a single device problem",
+     "The student has access to an alternative network option for a temporary workaround"
+    ],
+    "confidence": 0.97
+   }
+  },
+  {
+   "step": 7,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 2)",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:49+00:00"
+  },
+  {
+   "step": 7,
+   "agent": "Auditor Agent",
+   "action": "Verify plan (attempt 2)",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:50+00:00",
+   "duration_ms": 438,
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "ACCEPT - 6/6 checks passed",
+   "output": {
+    "verdict": "ACCEPT",
+    "llm_verdict": "ACCEPT",
+    "programmatic_checks": [
+     {
+      "id": "C1",
+      "name": "References exist in knowledge base",
+      "passed": true,
+      "detail": "All references valid"
+     },
+     {
+      "id": "C2",
+      "name": "Solution is grounded",
+      "passed": true,
+      "detail": "Plan cites knowledge base entries"
+     },
+     {
+      "id": "C3",
+      "name": "Solution is actionable",
+      "passed": true,
+      "detail": "4 steps provided (minimum 2)"
+     },
+     {
+      "id": "C4",
+      "name": "Urgency handled",
+      "passed": true,
+      "detail": "Time-critical actions given"
+     },
+     {
+      "id": "C7",
+      "name": "No invented contact details",
+      "passed": true,
+      "detail": "No unsupported contact details"
+     },
+     {
+      "id": "C8",
+      "name": "Department consistent with routing",
+      "passed": true,
+      "detail": "Contact department 'IT Service Desk'"
+     }
+    ],
+    "checks_passed": 6,
+    "checks_total": 6,
+    "scores": {
+     "accuracy": 5,
+     "relevance": 5,
+     "completeness": 5,
+     "groundedness": 5
+    },
+    "issues": [],
+    "feedback": []
+   }
+  },
+  {
+   "step": 7,
+   "agent": "Auditor Agent",
+   "action": "decision:audit",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:50+00:00",
+   "decision": "ACCEPT",
+   "summary": "ACCEPT - All checks passed"
+  },
+  {
+   "step": 7,
+   "agent": "Orchestrator",
+   "action": "decision:finalize",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:50+00:00",
+   "decision": "FINALIZE",
+   "summary": "FINALIZE - Auditor accepted the plan"
+  },
+  {
+   "step": 7,
+   "agent": "Orchestrator",
+   "action": "decision:incident",
+   "status": "decision",
+   "timestamp": "2026-11-21T11:00:50+00:00",
+   "decision": "INCIDENT_OPENED",
+   "summary": "INCIDENT_OPENED - INC-1121-6CF3: 3 linked reports, owner IT Service Desk"
+  },
+  {
+   "step": 8,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "started",
+   "timestamp": "2026-11-21T11:00:50+00:00"
+  },
+  {
+   "step": 8,
+   "agent": "Communication Agent",
+   "action": "Draft message to the department",
+   "status": "completed",
+   "timestamp": "2026-11-21T11:00:50+00:00",
+   "duration_ms": 492,
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "simulated": false,
+   "fallback_errors": [],
+   "summary": "Draft to IT Service Desk: Eduroam connectivity issue at the library",
+   "output": {
+    "to_department": "IT Service Desk",
+    "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+    "subject": "Eduroam connectivity issue at the library",
+    "body": "Dear IT Service Desk,\nI am experiencing an Eduroam connectivity issue at the library. I cannot connect to the network and suspect a library-wide outage. I will report the outage immediately, providing the building, approximate start time, device type, and any error messages. I will also forget the Eduroam network on my device and attempt to reconnect using my full university username and password. I will check if other devices or classmates can connect to confirm a network-wide issue. I will use a temporary workaround such as a wired Ethernet connection or a nearby computer lab until the issue is resolved.\nThank you,\n[Your name]\n[Student ID]",
+    "contains_invented_contacts": false,
+    "unsupported_claims": [],
+    "self_corrected": false,
+    "is_draft": true
+   }
+  }
+ ],
+ "decisions": [
+  {
+   "agent": "Triage Agent",
+   "decision_type": "classification",
+   "decision": "it_network|medium",
+   "reason": "Network connectivity issue affecting study",
+   "timestamp": "2026-11-21T11:00:46+00:00"
+  },
+  {
+   "agent": "Incident Agent",
+   "decision_type": "incident",
+   "decision": "INCIDENT_DETECTED",
+   "reason": "Both reports describe a Wi‑Fi connectivity failure at the library, indicating the same underlying incident. Urgency medium -> high",
+   "timestamp": "2026-11-21T11:00:46+00:00"
+  },
+  {
+   "agent": "Routing Agent",
+   "decision_type": "routing",
+   "decision": "IT Service Desk",
+   "reason": "The issue is a campus Wi‑Fi outage affecting multiple students at the library, which falls under IT Service Desk’s scope for eduroam problems. No staff decision is required beyond standard IT troubleshooting.",
+   "timestamp": "2026-11-21T11:00:47+00:00"
+  },
+  {
+   "agent": "Auditor Agent",
+   "decision_type": "audit",
+   "decision": "REJECT",
+   "reason": "[C4] Urgency is 'high' / time-sensitive but no time-critical actions were given",
+   "timestamp": "2026-11-21T11:00:48+00:00"
+  },
+  {
+   "agent": "Orchestrator",
+   "decision_type": "retry",
+   "decision": "REVISE",
+   "reason": "Auditor rejected; sending 1 feedback item(s) back (revision 1/2)",
+   "timestamp": "2026-11-21T11:00:48+00:00"
+  },
+  {
+   "agent": "Auditor Agent",
+   "decision_type": "audit",
+   "decision": "ACCEPT",
+   "reason": "All checks passed",
+   "timestamp": "2026-11-21T11:00:50+00:00"
+  },
+  {
+   "agent": "Orchestrator",
+   "decision_type": "finalize",
+   "decision": "FINALIZE",
+   "reason": "Auditor accepted the plan",
+   "timestamp": "2026-11-21T11:00:50+00:00"
+  },
+  {
+   "agent": "Orchestrator",
+   "decision_type": "incident",
+   "decision": "INCIDENT_OPENED",
+   "reason": "INC-1121-6CF3: 3 linked reports, owner IT Service Desk",
+   "timestamp": "2026-11-21T11:00:50+00:00"
+  }
+ ],
+ "auditor_decision": "ACCEPT",
+ "revision_count": 1,
+ "final_solution": {
+  "diagnosis": "Likely a library‑wide Eduroam outage affecting multiple students",
+  "steps": [
+   {
+    "action": "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "Forget the Eduroam network on your device and reconnect using your full university username and password",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "Check whether other devices or classmates can connect to Eduroam in the same area to confirm a network‑wide issue",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   },
+   {
+    "action": "Use a temporary workaround such as a wired Ethernet connection, a nearby computer lab, or a mobile hotspot until the outage is resolved",
+    "owner": "student",
+    "kb_ref": "KB-IT-01"
+   }
+  ],
+  "contact_department": "IT Service Desk",
+  "time_critical_actions": [
+   "Immediately report the outage to the IT Service Desk, providing building (library), approximate start time, device type and any error messages you see"
+  ],
+  "kb_refs": [
+   "KB-IT-01"
+  ],
+  "assumptions": [
+   "Multiple students are experiencing the same issue, indicating a network outage rather than a single device problem",
+   "The student has access to an alternative network option for a temporary workaround"
+  ],
+  "confidence": 0.97,
+  "verified_by_auditor": true,
+  "note": "Verified action plan. The student and the department still need to carry it out; the system does not fix the problem physically."
+ },
+ "message_draft": {
+  "to_department": "IT Service Desk",
+  "channel": "IT Service Desk ticket form or help desk counter (see the official university IT page)",
+  "subject": "Eduroam connectivity issue at the library",
+  "body": "Dear IT Service Desk,\nI am experiencing an Eduroam connectivity issue at the library. I cannot connect to the network and suspect a library-wide outage. I will report the outage immediately, providing the building, approximate start time, device type, and any error messages. I will also forget the Eduroam network on my device and attempt to reconnect using my full university username and password. I will check if other devices or classmates can connect to confirm a network-wide issue. I will use a temporary workaround such as a wired Ethernet connection or a nearby computer lab until the issue is resolved.\nThank you,\n[Your name]\n[Student ID]",
+  "contains_invented_contacts": false,
+  "unsupported_claims": [],
+  "self_corrected": false,
+  "is_draft": true
+ },
+ "human_review": null,
+ "status": "solution_verified",
+ "error": null,
+ "kb_notice": "DEMO DATA. Illustrative university support knowledge base written for the hackathon. It is NOT official University of Debrecen information and contains no real contact details.",
+ "input_guard": {
+  "truncated": false,
+  "injection_suspected": false,
+  "patterns": []
+ },
+ "language": "English",
+ "location": "library",
+ "incident": {
+  "incident_id": "INC-1121-6CF3",
+  "title": "Eduroam outage - Library",
+  "report_count": 3,
+  "location": "library",
+  "is_new": true,
+  "ticket_ids": [
+   "UR-20261121-2AB5E6",
+   "UR-20261121-B4C3A4",
+   "UR-20261121-D805DB"
+  ]
+ },
+ "execution_mode": "live_llm",
+ "providers_used": [
+  "groq"
+ ],
+ "autonomy_metrics": {
+  "agents_executed": 8,
+  "autonomous_decisions": 8,
+  "auditor_rejections": 1,
+  "revision_attempts": 1,
+  "human_escalations": 0,
+  "incident_detected": true,
+  "llm_calls_live": 8,
+  "llm_calls_simulated": 0,
+  "total_execution_time_ms": 4851
+ }
+}

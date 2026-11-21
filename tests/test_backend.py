@@ -249,3 +249,15 @@ def test_analytics():
     assert a["total_cases"] == 2 and a["by_department"]["Facilities Management"] == 1
     assert "classroom 204" in a["top_locations"]
 
+
+
+def test_replay_from_recorded_file(tmp_path, monkeypatch):
+    import json
+    from backend import process_ticket, replay_ticket, orchestrator, config, get_recorded_runs
+    r = process_ticket("There is a broken chair in classroom 204.")
+    monkeypatch.setattr(orchestrator, "RECORDED_DIR", tmp_path)
+    (tmp_path / f"{r['ticket_id']}.json").write_text(json.dumps(r))
+    monkeypatch.setattr(config, "DB_PATH", tmp_path / "empty.db")  # fresh machine: not in DB
+    rep = replay_ticket(r["ticket_id"], speed=0)
+    assert rep["replay"] and rep["ticket_id"] == r["ticket_id"]
+    assert get_recorded_runs()[0]["ticket_id"] == r["ticket_id"]
