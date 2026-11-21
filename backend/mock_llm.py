@@ -73,6 +73,10 @@ def triage(user_input: str, category_hint: str | None, urgency_hint: str | None)
         "time_sensitive": exam or urgency in ("high", "critical"),
         "safety_risk": safety,
         "key_facts": facts,
+        "exam_involved": exam,
+        "is_support_request": not re.search(
+            r"\b(poem|joke|capital of|recipe|song|story|ignore (all |previous )?instructions)\b", user_input, re.I),
+        "language": "English",
     }
 
 
@@ -133,4 +137,19 @@ def audit(solution: dict) -> dict:
                    "groundedness": 5 if grounded else 1},
         "issues": [] if grounded else ["Solution is not supported by any knowledge base entry."],
         "feedback": "" if grounded else "Ground every step in a knowledge base entry or escalate.",
+    }
+
+
+def communication(user_input: str, tri: dict, rout: dict, sol: dict, status: str) -> dict:
+    dept = sol.get("contact_department") or rout["department"]
+    facts = "; ".join(tri.get("key_facts") or []) or "see description"
+    return {
+        "to_department": dept,
+        "channel": "",
+        "subject": f"{tri['category'].replace('_', ' ').title()} issue - {tri['urgency']} priority",
+        "body": (f"Dear {dept},\n\nI would like to report the following problem: {user_input.strip()}\n"
+                 f"Details: {facts}.\n"
+                 + ("This is time-sensitive. " if tri.get("time_sensitive") else "")
+                 + ("I am requesting a staff decision on this matter. " if status == "awaiting_human_approval" else "")
+                 + "\n\nKind regards,\n[your name]\n[student ID]"),
     }

@@ -47,6 +47,10 @@ def main() -> None:
         if r["error"]:
             print("ERROR:", r["error"])
         print("METRICS:", r["autonomy_metrics"])
+        if r.get("message_draft"):
+            m = r["message_draft"]
+            print(f"MESSAGE DRAFT -> {m['to_department']} via {m['channel']}\n  Subject: {m['subject']}\n  "
+                  + m["body"].replace("\n", "\n  "))
 
 
 if __name__ == "__main__":

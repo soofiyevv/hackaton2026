@@ -122,6 +122,9 @@ def stats() -> dict:
         pending = c.execute(
             "SELECT COUNT(*) FROM tickets WHERE status IN ('awaiting_human_approval','escalated_to_human')"
         ).fetchone()[0]
+        reviewed = c.execute(
+            "SELECT COUNT(*) FROM tickets WHERE status IN ('approved_by_staff','rejected_by_staff')"
+        ).fetchone()[0]
         avg = c.execute("SELECT AVG(total_time_ms) FROM tickets WHERE total_time_ms IS NOT NULL").fetchone()[0]
         rejections = c.execute(
             "SELECT COUNT(*) FROM decisions WHERE decision_type='audit' AND decision='REJECT'"
@@ -130,6 +133,17 @@ def stats() -> dict:
         "total_tickets": total,
         "verified_solutions": verified,
         "pending_human_approval": pending,
+        "human_reviewed": reviewed,
         "avg_processing_time_ms": int(avg) if avg is not None else None,
         "total_auditor_rejections": rejections,
     }
+
+
+def save_review(result: dict, decision: dict) -> None:
+    with connect() as c:
+        c.execute("UPDATE tickets SET status=?, result_json=? WHERE ticket_id=?",
+                  (result["status"], json.dumps(result, ensure_ascii=False), result["ticket_id"]))
+        c.execute("""INSERT INTO decisions (ticket_id, agent, decision_type, decision, reason, created_at)
+                     VALUES (?,?,?,?,?,?)""",
+                  (result["ticket_id"], decision["agent"], decision["decision_type"], decision["decision"],
+                   decision["reason"], decision["timestamp"]))

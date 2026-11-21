@@ -32,7 +32,7 @@ def parse_json(text: str) -> dict:
     """Parse a JSON object from model output, tolerating code fences / extra prose."""
     if text is None:
         raise LLMError("empty response")
-    cleaned = text.strip()
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()  # reasoning models (qwen)
     cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned)
     try:
         obj = json.loads(cleaned)
@@ -209,3 +209,25 @@ class LLMClient:
             return LLMResult(mock(), "offline-simulation", "deterministic-mock", True,
                              int((time.perf_counter() - started) * 1000), errors)
         raise LLMError("all LLM providers failed: " + " | ".join(errors))
+
+
+def healthcheck(timeout_note: str = "") -> list[dict]:
+    """Ping every model in the chains with a tiny JSON request (real API calls, ~1-3 s each).
+    Use before a demo / in a 'System status' panel. Does not change cooldown state."""
+    seen, out = set(), []
+    for provider, model in parse_chain(config.LLM_CHAIN) + parse_chain(config.LLM_CHAIN_FAST):
+        if (provider, model) in seen:
+            continue
+        seen.add((provider, model))
+        t0 = time.perf_counter()
+        try:
+            data = parse_json(CALLERS[provider](model, "Reply with JSON only.", 'Return {"ok": true}'))
+            status, detail = ("ok" if data.get("ok") is True else "unexpected_output"), ""
+        except Exception as exc:
+            status = ("rate_limited_or_overloaded" if _is_overloaded(exc)
+                      else "unavailable" if _is_permanent(exc) else "error")
+            detail = f"{type(exc).__name__}: {str(exc)[:120]}"
+        out.append({"provider": provider, "model": model, "status": status,
+                    "latency_ms": int((time.perf_counter() - t0) * 1000), "detail": detail,
+                    "cooling_down": _cooldown.get(f"{provider}:{model}", 0) > time.time()})
+    return out

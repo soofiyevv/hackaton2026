@@ -10,7 +10,8 @@ from typing import Callable
 
 from . import config, db, llm, orchestrator
 
-__all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status"]
+__all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status",
+           "review_ticket", "get_pending_reviews", "check_models", "replay_ticket"]
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
@@ -47,3 +48,27 @@ def get_system_status() -> dict:
     return {"mode": config.get_mode(), "providers": llm.provider_status(),
             "llm_chain": config.LLM_CHAIN, "llm_chain_fast": config.LLM_CHAIN_FAST,
             "max_revisions": config.MAX_REVISIONS}
+
+
+def review_ticket(ticket_id: str, decision: str, reviewer: str = "staff", note: str = "") -> dict:
+    """Staff decision for a case in 'awaiting_human_approval' or 'escalated_to_human'.
+    decision: "approve" | "reject". Returns the updated ticket (status approved_by_staff / rejected_by_staff).
+    Raises KeyError (unknown ticket) or ValueError (bad decision / ticket does not need review)."""
+    return orchestrator.review(ticket_id, decision, reviewer, note)
+
+
+def get_pending_reviews() -> list[dict]:
+    """Ticket summaries waiting for a human decision (newest first)."""
+    return [t for t in db.list_tickets(500) if t["status"] in orchestrator.REVIEWABLE]
+
+
+def check_models() -> list[dict]:
+    """Real tiny API call to every configured model: [{provider, model, status, latency_ms, detail, cooling_down}].
+    status: ok | rate_limited_or_overloaded | unavailable | error | unexpected_output. Takes a few seconds."""
+    return llm.healthcheck()
+
+
+def replay_ticket(ticket_id: str, on_event: Callable[[dict], None] | None = None, speed: float = 1.0) -> dict:
+    """Replay a recorded run (same events, original pacing, no LLM calls) for offline demos.
+    Result has replay=True and recorded_at -> the UI must show a 'RECORDED RUN' label."""
+    return orchestrator.replay(ticket_id, on_event, speed)

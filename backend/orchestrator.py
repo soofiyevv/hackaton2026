@@ -8,10 +8,14 @@ import uuid
 from datetime import datetime
 from typing import Callable
 
-from . import agents, config, db, kb
+from . import agents, config, db, guard, kb
 from .llm import LLMClient, LLMResult
 
 EventCallback = Callable[[dict], None]
+
+
+class _StopPipeline(Exception):
+    """Internal: planned early exit (e.g. out-of-scope input)."""
 
 
 class Run:
@@ -80,6 +84,8 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
     if not user_input or not user_input.strip():
         raise ValueError("user_input must not be empty")
     started = time.perf_counter()
+    check = guard.inspect(user_input)
+    user_input = check["text"]
     mode = config.get_mode(mode)
     llm = LLMClient(mode)
     run = Run(_new_ticket_id(), on_event)
@@ -88,18 +94,39 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
         "requested_mode": mode, "category": None, "priority": None, "assigned_department": None,
         "workflow": None, "requires_human_approval": False, "agent_results": {},
         "execution_trace": run.trace, "decisions": run.decisions, "auditor_decision": None,
-        "revision_count": 0, "final_solution": None, "status": "processing", "error": None,
+        "revision_count": 0, "final_solution": None, "message_draft": None, "human_review": None,
+        "status": "processing", "error": None,
         "kb_notice": kb.notice(),
+        "input_guard": {k: v for k, v in check.items() if k != "text"},
+        "language": None,
     }
     rejections = revisions = escalations = 0
     try:
+        if check["injection_suspected"]:
+            run.decide("Orchestrator", "security", "INJECTION_FLAGGED",
+                       f"Input contains instruction-like text {check['patterns']}; it is treated strictly as data")
+        if check["truncated"]:
+            run.decide("Orchestrator", "input", "TRUNCATED", f"Input cut to {guard.MAX_INPUT_CHARS} characters")
         tri = run.agent("Triage Agent", "Classify problem, category and urgency",
                         lambda: agents.triage(llm, user_input, category_hint, urgency_hint),
                         lambda o: f"{o['category']} / urgency {o['urgency']}")
         run.decide("Triage Agent", "classification", f"{tri['category']}|{tri['urgency']}",
                    tri["urgency_reason"] or "classified from report")
-        result.update(category=tri["category"], priority=tri["urgency"])
+        result.update(category=tri["category"], priority=tri["urgency"], language=tri["language"])
         result["agent_results"]["triage"] = tri
+
+        if not tri["is_support_request"]:
+            run.decide("Orchestrator", "scope", "OUT_OF_SCOPE",
+                       "Not a university support request; pipeline stopped early, no plan generated")
+            result["status"] = "out_of_scope_request"
+            result["final_solution"] = {
+                "diagnosis": "This does not look like a university support problem.", "steps": [],
+                "contact_department": None, "time_critical_actions": [], "kb_refs": [], "assumptions": [],
+                "confidence": 0.0, "verified_by_auditor": False,
+                "note": "UniResolve only handles student support problems (IT, facilities, exams, administration, "
+                        "wellbeing...). Please describe a problem you need help with.",
+            }
+            raise _StopPipeline()
 
         rout = run.agent("Routing Agent", "Select workflow and owning department",
                          lambda: agents.routing(llm, user_input, tri),
@@ -115,6 +142,7 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
         attempts = []
         feedback: list[str] = []
         solution = audit = None
+        last_signature = None
         for attempt in range(config.MAX_REVISIONS + 1):
             label = "Draft resolution plan" if attempt == 0 else f"Revise plan (revision {attempt})"
             previous = {k: v for k, v in solution.items() if not k.startswith("_")} if solution else None
@@ -132,6 +160,17 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
             if audit["verdict"] == "ACCEPT":
                 break
             rejections += 1
+            signature = (tuple(sorted(solution["kb_refs"])),
+                         tuple(sorted(c["id"] for c in audit["programmatic_checks"] if not c["passed"])),
+                         audit["llm_verdict"])
+            stagnated = attempt > 0 and signature == last_signature
+            last_signature = signature
+            if stagnated:
+                escalations += 1
+                run.decide("Orchestrator", "escalation", "ESCALATE_TO_HUMAN",
+                           "No progress: the revised plan uses the same sources and fails the same checks as the "
+                           "previous one, so further automatic revisions would not help")
+                break
             if attempt < config.MAX_REVISIONS:
                 revisions += 1
                 feedback = audit["feedback"]
@@ -165,6 +204,19 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
             result["status"] = "escalated_to_human"
             final["note"] = "UNVERIFIED draft: the auditor rejected every attempt. Escalated to a human."
         result["final_solution"] = final
+
+        # Communication Agent: ready-to-send message draft (never sent automatically)
+        try:
+            msg = run.agent("Communication Agent", "Draft message to the department",
+                            lambda: agents.communication(llm, user_input, tri, rout, solution, result["status"]),
+                            lambda o: f"Draft to {o['to_department']}: {o['subject'][:60]}")
+            result["agent_results"]["communication"] = msg
+            result["message_draft"] = msg
+        except Exception as exc:  # optional step: never fail the ticket because of it
+            result["message_draft"] = None
+            result["agent_results"]["communication_error"] = f"{type(exc).__name__}: {exc}"
+    except _StopPipeline:
+        pass
     except Exception as exc:
         result["status"] = "failed"
         result["error"] = f"{type(exc).__name__}: {exc}"
@@ -195,3 +247,50 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
     except Exception as exc:  # persistence failure should not hide the result
         result["error"] = (result["error"] or "") + f" | DB save failed: {exc}"
     return result
+
+
+REVIEWABLE = ("awaiting_human_approval", "escalated_to_human")
+
+
+def review(ticket_id: str, decision: str, reviewer: str = "staff", note: str = "") -> dict:
+    """Human-in-the-loop: a staff member approves or rejects a case the agents could not close alone."""
+    decision = decision.strip().lower()
+    if decision not in ("approve", "reject"):
+        raise ValueError("decision must be 'approve' or 'reject'")
+    result = db.load_ticket(ticket_id)
+    if result is None:
+        raise KeyError(f"ticket {ticket_id} not found")
+    if result.get("status") not in REVIEWABLE:
+        raise ValueError(f"ticket status '{result.get('status')}' does not need a human review")
+    now = db.now_iso()
+    previous = result["status"]
+    result["status"] = "approved_by_staff" if decision == "approve" else "rejected_by_staff"
+    result["human_review"] = {"decision": decision.upper(), "reviewer": reviewer or "staff", "note": note,
+                              "reviewed_at": now, "previous_status": previous}
+    d = {"agent": "Human Reviewer", "decision_type": "human_review", "decision": decision.upper(),
+         "reason": note or f"{reviewer} {decision}d the case", "timestamp": now}
+    result["decisions"].append(d)
+    result["execution_trace"].append({"step": len({e['step'] for e in result['execution_trace']}) + 1,
+                                      "agent": "Human Reviewer", "action": "decision:human_review",
+                                      "status": "decision", "timestamp": now, "decision": decision.upper(),
+                                      "summary": f"{decision.upper()} by {reviewer}" + (f" - {note}" if note else "")})
+    db.save_review(result, d)
+    return result
+
+
+def replay(ticket_id: str, on_event: EventCallback | None = None, speed: float = 1.0) -> dict:
+    """Re-emit the trace of a previously recorded run with its original pacing (capped).
+    For demos without network. The returned ticket has replay=True and recorded_at, so the UI
+    must label it 'RECORDED RUN' - nothing is recomputed and no LLM is called."""
+    result = db.load_ticket(ticket_id)
+    if result is None:
+        raise KeyError(f"ticket {ticket_id} not found")
+    for ev in result.get("execution_trace", []):
+        if on_event:
+            if ev.get("status") == "completed" and speed > 0:
+                time.sleep(min(ev.get("duration_ms", 0) / 1000 / speed, 2.5))
+            try:
+                on_event({**ev, "replay": True})
+            except Exception:
+                pass
+    return {**result, "replay": True, "recorded_at": result["created_at"]}

@@ -34,9 +34,11 @@ def groq_api_key() -> str | None:
 # so several models spread the load. Heavy agents (resolution/audit) use LLM_CHAIN,
 # light agents (triage/routing) use LLM_CHAIN_FAST.
 LLM_CHAIN = os.getenv("LLM_CHAIN",
-                      "groq:openai/gpt-oss-120b,groq:openai/gpt-oss-20b,gemini:gemini-3.5-flash,gemini:gemini-3.8-flash")
+                      "groq:openai/gpt-oss-120b,groq:qwen/qwen3.8-27b,groq:openai/gpt-oss-20b,"
+                      "gemini:gemini-3.5-flash,gemini:gemini-3.5-flash-lite,gemini:gemini-3.8-flash")
 LLM_CHAIN_FAST = os.getenv("LLM_CHAIN_FAST",
-                           "groq:openai/gpt-oss-20b,gemini:gemini-3.5-flash-lite,groq:openai/gpt-oss-120b,gemini:gemini-3.5-flash")
+                           "groq:openai/gpt-oss-20b,groq:qwen/qwen3.8-27b,gemini:gemini-3.5-flash-lite,"
+                           "groq:openai/gpt-oss-120b,gemini:gemini-3.5-flash")
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "low")  # low | medium | high | "" to omit
 LLM_TIMEOUT_S =float(os.getenv("LLM_TIMEOUT_S", "30"))
 

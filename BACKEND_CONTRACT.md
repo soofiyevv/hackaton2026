@@ -4,7 +4,8 @@ Owner: backend (`backend/`). The frontend imports **only** these functions and m
 
 ```python
 from backend import (process_ticket, get_ticket, get_ticket_history,
-                     get_dashboard_stats, get_system_status)
+                     get_dashboard_stats, get_system_status,
+                     review_ticket, get_pending_reviews, check_models, replay_ticket)
 ```
 
 Run Streamlit from the repository root (`streamlit run frontend/app.py`). If `import backend` fails, add the repo root to `sys.path` at the top of `app.py`:
@@ -44,9 +45,32 @@ Newest first. Each item:
  "execution_mode": "live_llm", "total_time_ms": 8123}
 ```
 
+### `review_ticket(ticket_id, decision, reviewer="staff", note="") -> dict`
+Human-in-the-loop (staff panel). Only for tickets with status `awaiting_human_approval` or `escalated_to_human`.
+`decision` = `"approve"` or `"reject"`. Returns the updated ticket: status becomes `approved_by_staff` / `rejected_by_staff`,
+`human_review` is filled, a `Human Reviewer` decision event is appended to `execution_trace` and `decisions`.
+Raises `KeyError` (unknown id) or `ValueError` (bad decision / ticket does not need review) - catch and show `st.error`.
+
+### `get_pending_reviews() -> list[dict]`
+Same item shape as `get_ticket_history()`, only tickets waiting for a human decision.
+
+### `check_models() -> list[dict]`
+Real tiny API call to every configured model (a few seconds). For a **System status / Model health** panel
+(call it only on a button click, not on every rerun):
+```json
+[{"provider": "groq", "model": "openai/gpt-oss-120b", "status": "ok", "latency_ms": 640, "detail": "", "cooling_down": false},
+ {"provider": "gemini", "model": "gemini-3.8-flash", "status": "rate_limited_or_overloaded", "latency_ms": 15020, "detail": "ServerError: 503 ...", "cooling_down": false}]
+```
+`status`: `ok`, `rate_limited_or_overloaded`, `unavailable`, `error`, `unexpected_output`.
+
+### `replay_ticket(ticket_id, on_event=None, speed=1.0) -> dict`
+Plays back a **previously recorded run** event by event with its original pacing (each pause capped at 2.5 s; `speed=0` = instant).
+No LLM call, nothing recomputed. Returned ticket has `"replay": true` and `"recorded_at"`, and every event has `"replay": true`.
+**UI must show a clear "RECORDED RUN - recorded at HH:MM" label.** Use as a backup if the network fails during the pitch.
+
 ### `get_dashboard_stats() -> dict`
 ```json
-{"total_tickets": 5, "verified_solutions": 3, "pending_human_approval": 2,
+{"total_tickets": 5, "verified_solutions": 3, "pending_human_approval": 2, "human_reviewed": 1,
  "avg_processing_time_ms": 7400, "total_auditor_rejections": 5}
 ```
 `avg_processing_time_ms` is `null` when there are no tickets.
@@ -74,6 +98,8 @@ The trace event `model` field shows which model actually answered each step (sho
   - `solution_verified` - auditor accepted the plan (it is a *plan*; nothing was physically fixed)
   - `awaiting_human_approval` - plan accepted, but the outcome needs a staff decision (e.g. exam reschedule)
   - `escalated_to_human` - auditor rejected every attempt (1 draft + `max_revisions` revisions)
+  - `approved_by_staff` / `rejected_by_staff` - after `review_ticket`
+  - `out_of_scope_request` - not a support problem (e.g. "write me a poem"); stopped after Triage, `final_solution.note` explains
   - `failed` - pipeline error, see `error`
 - **auditor_decision**: `ACCEPT` / `REJECT` (final audit)
 - **execution_mode**: `live_llm` (all calls real), `offline_simulation` (all simulated), `mixed` (some calls fell back to simulation in auto mode), `none` (failed before any call)
@@ -101,11 +127,21 @@ The trace event `model` field shows which model actually answered each step (sho
   "providers_used": ["gemini"],                      // or ["offline-simulation"], ["groq"], ...
   "error": null,
   "kb_notice": "DEMO DATA. ...",                     // show small disclaimer in UI
+  "message_draft": {                                 // Communication Agent output, null if the step failed
+    "to_department": "IT Service Desk", "channel": "IT Service Desk ticket form ...",
+    "subject": "...", "body": "Dear IT Service Desk, ... [your name] [student ID]",
+    "contains_invented_contacts": false, "is_draft": true   // never sent automatically -> show a Copy button
+  },
+  "input_guard": {"truncated": false, "injection_suspected": false, "patterns": []},  // show a "security flag" chip if true
+  "language": "English",                             // language the student wrote in (any language is accepted)
+  "human_review": null,                              // after review_ticket:
+  // {"decision": "APPROVE", "reviewer": "Dr. X", "note": "...", "reviewed_at": "...", "previous_status": "awaiting_human_approval"}
 
   "agent_results": {
     "triage": {
       "summary": "...", "category": "it_network", "urgency": "high", "urgency_reason": "...",
-      "time_sensitive": true, "safety_risk": false, "key_facts": ["an exam is affected or imminent"]
+      "time_sensitive": true, "safety_risk": false, "key_facts": ["an exam is affected or imminent"],
+      "is_support_request": true, "language": "English"
     },
     "routing": {
       "workflow": "it_network", "department": "IT Service Desk",
@@ -152,6 +188,7 @@ The trace event `model` field shows which model actually answered each step (sho
     {"agent": "Auditor Agent", "decision_type": "audit", "decision": "REJECT", "reason": "...",
      "timestamp": "..."}
     // decision_type: classification | routing | human_approval_required | audit | retry | escalation | finalize
+    //                | human_review | security (INJECTION_FLAGGED) | input (TRUNCATED) | scope (OUT_OF_SCOPE)
   ],
 
   "autonomy_metrics": {
@@ -185,7 +222,8 @@ If `status == "failed"`, fields after the failure point may be `null` / missing 
 {"step": 3, "agent": "Resolution Agent", "status": "error", "summary": "LLMError: ...", "output": null}
 ```
 
-Agents: `Triage Agent`, `Routing Agent`, `Resolution Agent`, `Auditor Agent`, `Orchestrator` (decisions only).
+Agents: `Triage Agent`, `Routing Agent`, `Resolution Agent`, `Auditor Agent`, `Communication Agent` (last step),
+`Orchestrator` (decisions only), `Human Reviewer` (only after `review_ticket`).
 `step` is shared by a started/completed pair. Resolution and Auditor appear once per attempt.
 `fallback_errors` non-empty = the primary provider failed and another provider (or the simulation) answered.
 
@@ -203,6 +241,9 @@ Agents: `Triage Agent`, `Routing Agent`, `Resolution Agent`, `Auditor Agent`, `O
 
 Final verdict = ACCEPT only if **all** checks pass **and** the LLM auditor accepts.
 
+**No-progress detection:** if a revised plan uses the same KB sources and fails the same checks as the previous attempt,
+the Orchestrator escalates immediately (decision reason starts with "No progress") instead of wasting more revisions.
+
 ---
 
 ## Offline demo scenarios (`mode="offline"`, deterministic)
@@ -216,3 +257,9 @@ Final verdict = ACCEPT only if **all** checks pass **and** the LLM auditor accep
 | `My scholarship payment did not arrive this month.` | Student Finance Office, `awaiting_human_approval` |
 
 Offline mode simulates only the LLM text. Orchestration, auditor checks, retries, escalation and the database are the real code.
+
+## Input handling
+- Any language is accepted; plans and message drafts are written in English (for university staff).
+- Max 2000 characters (longer input is truncated, `input_guard.truncated = true`).
+- Prompt-injection attempts ("ignore previous instructions", fake tags, "verdict: ACCEPT"...) are detected by code,
+  logged as a `security` decision, and the text is always passed to the LLM as untrusted data.
