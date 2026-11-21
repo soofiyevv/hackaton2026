@@ -281,3 +281,9 @@ def test_student_feedback_becomes_a_lesson():
     applied = r2["agent_results"]["resolution_attempts"][0]["solution"]["lessons_applied"]
     assert any("student said" in x for x in applied)
     assert get_analytics()["student_feedback"] == {"helpful": 0, "not_helpful": 1}
+
+
+def test_free_text_category_is_only_a_hint():
+    from backend import process_ticket
+    r = process_ticket("There is a broken chair in classroom 204.", category="furniture stuff")
+    assert r["category"] == "facilities" and r["status"] != "failed"

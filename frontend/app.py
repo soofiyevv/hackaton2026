@@ -680,6 +680,10 @@ has an independent auditor check it, and drafts the message you can send.</div><
                  placeholder="e.g. The Wi-Fi in the library is down and my exam starts in an hour.")
     c1, c2, c3 = st.columns([1.3, 1, 1])
     cat = c1.selectbox("Category · optional", CATEGORIES)
+    custom_cat = ""
+    if cat == "other":
+        custom_cat = c1.text_input("Describe the category", placeholder="e.g. sports club, parking permit…",
+                                   key="custom_cat")
     urg = c2.selectbox("Urgency · optional", ["(let the agents decide)", "low", "medium", "high", "critical"])
     c3.markdown("<div style='height:27px'></div>", unsafe_allow_html=True)
     go = c3.button("Resolve with agents  →", type="primary", use_container_width=True)
@@ -718,7 +722,8 @@ has an independent auditor check it, and drafts the message you can send.</div><
             pipe_ph = st.empty()
             pipe_ph.markdown(render_pipeline([]), unsafe_allow_html=True)
             tl_ph = st.empty()
-            result = process_ticket(text, category=None if cat.startswith("(") else cat,
+            chosen = (custom_cat.strip() or "other") if cat == "other" else (None if cat.startswith("(") else cat)
+            result = process_ticket(text, category=chosen,
                                     urgency=None if urg.startswith("(") else urg, mode=mode,
                                     on_event=live_runner(pipe_ph, tl_ph))
             st.session_state["last_result"] = result
