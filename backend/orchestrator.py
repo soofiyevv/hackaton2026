@@ -319,7 +319,7 @@ def replay(ticket_id: str, on_event: EventCallback | None = None, speed: float =
     """Re-emit the trace of a previously recorded run with its original pacing (capped).
     For demos without network. The returned ticket has replay=True and recorded_at, so the UI
     must label it 'RECORDED RUN' - nothing is recomputed and no LLM is called."""
-    result = db.load_ticket(ticket_id)
+    result = db.load_ticket(ticket_id) or load_recorded(ticket_id)
     if result is None:
         raise KeyError(f"ticket {ticket_id} not found")
     for ev in result.get("execution_trace", []):
@@ -331,3 +331,26 @@ def replay(ticket_id: str, on_event: EventCallback | None = None, speed: float =
             except Exception:
                 pass
     return {**result, "replay": True, "recorded_at": result["created_at"]}
+
+
+RECORDED_DIR = config.ROOT_DIR / "demo" / "recorded_runs"
+
+
+def load_recorded(ticket_id: str) -> dict | None:
+    """Recorded live runs committed to the repo (demo/recorded_runs/<id>.json), for replay on any machine."""
+    f = RECORDED_DIR / f"{ticket_id}.json"
+    if not f.exists():
+        return None
+    import json
+    return json.loads(f.read_text(encoding="utf-8"))
+
+
+def list_recorded() -> list[dict]:
+    import json
+    out = []
+    for f in sorted(RECORDED_DIR.glob("UR-*.json")):
+        r = json.loads(f.read_text(encoding="utf-8"))
+        out.append({"ticket_id": r["ticket_id"], "created_at": r["created_at"],
+                    "original_input": r["original_input"], "status": r["status"],
+                    "execution_mode": r.get("execution_mode"), "revision_count": r.get("revision_count")})
+    return out

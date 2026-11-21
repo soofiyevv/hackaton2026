@@ -1,5 +1,7 @@
 # UniResolve AI
 
+[![tests](https://github.com/soofiyevv/hackaton2026/actions/workflows/tests.yml/badge.svg)](https://github.com/soofiyevv/hackaton2026/actions/workflows/tests.yml)
+
 **A multi-agent system that turns University of Debrecen students' campus problems into verified, actionable resolution plans, with an independent AI auditor that rejects weak answers, forces revisions and escalates to staff when needed.**
 
 Track: **Autonomous Agents & Intelligent Systems** - GDG Debrecen Agentic AI Hackathon 2026. Built on 21 November 2026.
@@ -8,17 +10,22 @@ Track: **Autonomous Agents & Intelligent Systems** - GDG Debrecen Agentic AI Hac
 
 ## How it works
 
-```
-Student report
-   -> Triage Agent       category, urgency, time-sensitivity, safety risk
-   -> Routing Agent      owning department, knowledge base entries, human approval needed?
-   -> Resolution Agent   step-by-step plan grounded in the knowledge base
-   <-> Auditor Agent     8 programmatic checks + independent LLM review -> ACCEPT / REJECT + feedback
-        (rejected -> feedback goes back to Resolution Agent, max 2 revisions)
-   -> Communication Agent  ready-to-send message to the department
-   -> Orchestrator       finalize | await human approval | escalate to human
-   (+ Incident Agent after Triage when similar recent reports exist)
-   -> SQLite             tickets, agent_logs, decisions
+```mermaid
+flowchart LR
+    S([Student report<br/>any language]) --> G{{Input guard<br/>injection / length}}
+    G --> T[Triage Agent<br/>category, urgency,<br/>exam, safety, location]
+    T -->|not a support request| X([out_of_scope])
+    T --> I[Incident Agent<br/>3+ similar reports?]
+    I --> R[Routing Agent<br/>department + KB entries]
+    R --> P[Resolution Agent<br/>plan grounded in KB<br/>+ lessons learned]
+    P --> A{Auditor Agent<br/>8 code checks<br/>+ LLM review}
+    A -->|REJECT + feedback<br/>max 2 revisions| P
+    A -->|no progress / still rejected| E([Escalate to human])
+    A -->|ACCEPT| C[Communication Agent<br/>message draft]
+    C --> F([Verified plan])
+    C --> H([Awaiting staff approval])
+    H --> HR[Human reviewer<br/>approve / reject]
+    DB[(SQLite: tickets,<br/>agent_logs, decisions,<br/>incidents)] -.- A
 ```
 
 - **Incident Agent**: when 3+ students report the same problem at the same place within an hour, it groups them into one campus incident and raises the priority.

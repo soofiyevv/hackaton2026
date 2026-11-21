@@ -12,7 +12,7 @@ from . import config, db, incidents, insights, llm, orchestrator
 
 __all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status",
            "review_ticket", "get_pending_reviews", "check_models", "replay_ticket", "get_incidents", "close_incident",
-           "get_lessons_learned", "get_analytics"]
+           "get_lessons_learned", "get_analytics", "get_recorded_runs"]
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
@@ -96,3 +96,8 @@ def get_analytics() -> dict:
     """University-level aggregates over all stored cases (see BACKEND_CONTRACT.md)."""
     return insights.analytics()
 
+
+
+def get_recorded_runs() -> list[dict]:
+    """Recorded live runs shipped in the repo (demo/recorded_runs/), usable with replay_ticket() on any machine."""
+    return orchestrator.list_recorded()
