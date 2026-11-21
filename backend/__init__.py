@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from typing import Callable
 
-from . import config, db, incidents, llm, orchestrator
+from . import config, db, incidents, insights, llm, orchestrator
 
 __all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status",
-           "review_ticket", "get_pending_reviews", "check_models", "replay_ticket", "get_incidents", "close_incident"]
+           "review_ticket", "get_pending_reviews", "check_models", "replay_ticket", "get_incidents", "close_incident",
+           "get_lessons_learned", "get_analytics"]
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
@@ -83,3 +84,15 @@ def get_incidents(open_only: bool = True) -> list[dict]:
 def close_incident(incident_id: str) -> None:
     """Staff marks an incident as resolved (status -> closed)."""
     incidents.close(incident_id)
+
+
+def get_lessons_learned(category: str | None = None) -> dict:
+    """What the system learned from past auditor rejections (fed into new plans automatically):
+    {category, lessons: [{check, lesson, seen_in_category, seen_overall}], recent_llm_issues: [str]}"""
+    return insights.lessons(category)
+
+
+def get_analytics() -> dict:
+    """University-level aggregates over all stored cases (see BACKEND_CONTRACT.md)."""
+    return insights.analytics()
+

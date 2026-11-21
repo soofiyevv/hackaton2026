@@ -6,7 +6,7 @@ Owner: backend (`backend/`). The frontend imports **only** these functions and m
 from backend import (process_ticket, get_ticket, get_ticket_history,
                      get_dashboard_stats, get_system_status,
                      review_ticket, get_pending_reviews, check_models, replay_ticket,
-                     get_incidents, close_incident)
+                     get_incidents, close_incident, get_lessons_learned, get_analytics)
 ```
 
 Run Streamlit from the repository root (`streamlit run frontend/app.py`). If `import backend` fails, add the repo root to `sys.path` at the top of `app.py`:
@@ -78,6 +78,27 @@ location within 60 min, the agent compares the reports and, if they are the same
   "ticket_ids": ["UR-...", "UR-..."], "created_at": "...", "updated_at": "..."}]
 ```
 Show an **Active incidents** panel on the dashboard (title, location, report count, owner, Close button).
+
+### `get_lessons_learned(category=None) -> dict`
+The system learns from its own auditor: the most frequent past rejection reasons are injected into every new
+plan's prompt, so the same mistake is less likely next time. For a **"What the system learned"** card:
+```json
+{"category": "it_network",
+ "lessons": [{"check": "C4", "lesson": "For urgent or time-sensitive cases, fill time_critical_actions ...",
+              "seen_in_category": 3, "seen_overall": 5}],
+ "recent_llm_issues": ["The plan omits documenting the problem for the examiner"]}
+```
+Each plan also lists what it used: `resolution_attempts[i].solution.lessons_applied` (list of strings) -
+show it on the Resolution agent card ("Applied 2 lessons from past rejections").
+
+### `get_analytics() -> dict`
+University view over all stored cases (bar charts / tables):
+```json
+{"total_cases": 42, "by_category": {"it_network": 12, ...}, "by_department": {"IT Service Desk": 15, ...},
+ "by_status": {"solution_verified": 30, ...}, "top_locations": {"library": 6, "classroom 204": 2},
+ "auditor_failed_checks": {"C4 Urgency handled": 5, ...}, "accepted_first_attempt_rate": 0.8,
+ "avg_revisions": 0.2, "avg_time_ms": 3400, "human_decision_rate_by_department": {"Student Finance Office": 1.0}}
+```
 
 ### `get_dashboard_stats() -> dict`
 ```json

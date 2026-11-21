@@ -8,6 +8,7 @@ import re
 
 from . import kb, mock_llm
 from .guard import UNTRUSTED_NOTE
+from . import insights
 from .llm import LLMClient, LLMResult
 
 CATEGORIES = ["it_network", "it_accounts", "facilities", "classroom_equipment", "exams_academic",
@@ -135,11 +136,12 @@ def resolution(llm: LLMClient, user_input: str, tri: dict, rout: dict,
                     "(do not drop steps, refs or time-critical actions that were fine).\n"
                     "Auditor feedback:\n- " + "\n- ".join(feedback))
     urgent = tri["time_sensitive"] or tri["urgency"] in ("high", "critical")
+    lessons = insights.lessons_prompt(tri["category"]) if not feedback else ""
     prompt = f"""Original report: <student_report>{user_input}</student_report>
 Triage: {json.dumps(tri)}
 Routing: {json.dumps(rout)}
 Knowledge base entries:
-{_kb_text(entries)}{revision}
+{_kb_text(entries)}{revision}{lessons}
 
 The independent auditor will check that: every kb_ref is one of {[e['id'] for e in entries]}; there are at least
 2 steps; {"time_critical_actions is NOT empty (this case is urgent/time-sensitive); " if urgent else ""}\
@@ -183,6 +185,7 @@ Return JSON with keys:
         "assumptions": [str(x) for x in (d.get("assumptions") or [])],
         "confidence": conf,
         "_available_kb_ids": [e["id"] for e in entries],
+        "lessons_applied": [ln.strip("- ") for ln in lessons.strip().splitlines()[1:]] if lessons else [],
     }
     return out, res
 
@@ -299,7 +302,9 @@ Return JSON with keys:
 - to_department: department name
 - channel: how to send it (from the plan / KB contact channel, no invented addresses)
 - subject: short subject line
-- body: the message (max ~120 words, English, placeholders for unknown personal data)"""
+- body: the message, max ~80 words, English. Purpose: report the problem and ask the department to act.
+  Include what/where/when and why it matters (e.g. an exam); do NOT list the student's own troubleshooting
+  steps. Placeholders for unknown personal data."""
     res = llm.generate_json(system, prompt, lambda: mock_llm.communication(user_input, tri, rout, public_sol, status),
                             tier="fast")
     claims = unsupported_claims(str(res.data.get("body", "")), user_input)

@@ -229,3 +229,23 @@ def test_no_incident_for_different_places():
     for place in ("library", "canteen", "building C"):
         r = process_ticket(f"The Wi-Fi is down in the {place}")
     assert r["incident"] is None
+
+
+def test_lessons_learned_from_rejections_are_fed_forward():
+    from backend import process_ticket, get_lessons_learned
+    process_ticket("University Wi-Fi is not working and my exam starts in one hour!")  # offline: C4/C5 reject
+    L = get_lessons_learned("it_network")
+    assert {x["check"] for x in L["lessons"]} >= {"C4", "C5"}
+    r = process_ticket("Wi-Fi in building C keeps dropping")
+    first = r["agent_results"]["resolution_attempts"][0]["solution"]
+    assert any("time_critical" in x or "exam" in x for x in first["lessons_applied"])
+
+
+def test_analytics():
+    from backend import process_ticket, get_analytics
+    process_ticket("There is a broken chair in classroom 204.")
+    process_ticket("I was sick and need to reschedule my calculus exam to a new date.")
+    a = get_analytics()
+    assert a["total_cases"] == 2 and a["by_department"]["Facilities Management"] == 1
+    assert "classroom 204" in a["top_locations"]
+

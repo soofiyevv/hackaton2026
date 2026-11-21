@@ -51,6 +51,9 @@ def main() -> None:
         r = process_ticket(text, mode=mode, on_event=show)
         print(f"RESULT {r['ticket_id']}: status={r['status']} | {r['category']} / {r['priority']} -> "
               f"{r['assigned_department']} | revisions={r['revision_count']} | mode={r['execution_mode']}")
+        la = ((r.get("agent_results") or {}).get("resolution_attempts") or [{}])[0].get("solution", {}).get("lessons_applied")
+        if la:
+            print("LESSONS APPLIED:", *la, sep="\n  ")
         if r.get("incident"):
             i = r["incident"]
             print(f"INCIDENT {i['incident_id']}: {i['title']} ({i['report_count']} reports, new={i['is_new']})")

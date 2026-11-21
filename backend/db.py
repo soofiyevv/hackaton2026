@@ -153,3 +153,4 @@ def save_review(result: dict, decision: dict) -> None:
                      VALUES (?,?,?,?,?,?)""",
                   (result["ticket_id"], decision["agent"], decision["decision_type"], decision["decision"],
                    decision["reason"], decision["timestamp"]))
+

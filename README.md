@@ -4,6 +4,8 @@
 
 Track: **Autonomous Agents & Intelligent Systems** - GDG Debrecen Agentic AI Hackathon 2026. Built on 21 November 2026.
 
+**Team Caucasus:** Kanan Sofiyev (backend, agents, orchestration) · Aslan Shtancaev (frontend, UX)
+
 ## How it works
 
 ```
