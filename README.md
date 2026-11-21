@@ -15,10 +15,16 @@ Student report
    -> Resolution Agent   step-by-step plan grounded in the knowledge base
    <-> Auditor Agent     8 programmatic checks + independent LLM review -> ACCEPT / REJECT + feedback
         (rejected -> feedback goes back to Resolution Agent, max 2 revisions)
+   -> Communication Agent  ready-to-send message to the department
    -> Orchestrator       finalize | await human approval | escalate to human
+   (+ Incident Agent after Triage when similar recent reports exist)
    -> SQLite             tickets, agent_logs, decisions
 ```
 
+- **Incident Agent**: when 3+ students report the same problem at the same place within an hour, it groups them into one campus incident and raises the priority.
+- **Learns from its auditor**: the most frequent past rejection reasons are fed into every new plan ("lessons learned"), so the same mistake becomes less likely.
+- **Communication Agent** drafts the message to the responsible office; code checks block invented contacts and invented "I already tried..." claims.
+- **Human in the loop**: staff approve or reject cases that need a decision; prompt-injection and off-topic input are detected.
 - Real agent loop in code (`backend/orchestrator.py`): the auditor's feedback is passed back into the resolver's next prompt.
 - The auditor combines deterministic checks (unknown KB references, invented contact details, ignored urgency, ignored exam, missing safety guidance...) with an LLM review. A plan is accepted only if both agree.
 - Model fallback chain across Groq (gpt-oss-120b / 20b) and Gemini (3.5 / 3.8 flash), then offline simulation (auto mode). Light agents use a fast model so the strong model's rate limit is kept for planning and auditing. Every agent call records which provider answered; simulated output is always labelled.
