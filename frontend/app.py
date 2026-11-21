@@ -731,7 +731,10 @@ def _write_consent_cookies() -> None:
 if st.session_state.pop("write_cookies", False):
     _write_consent_cookies()
 
-if st.session_state.get("consent") is None:
+st.session_state["ck_runs"] = st.session_state.get("ck_runs", 0) + 1
+# wait until the cookie component has reported (or ~2 runs), so returning visitors never see a flash
+_ready = (not _cookie_manager) or st.session_state.get("cookie_checked") or st.session_state["ck_runs"] >= 3
+if st.session_state.get("consent") is None and _ready:
     try:
         _banner = st.container(key="consent")
     except TypeError:
