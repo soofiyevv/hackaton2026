@@ -5,7 +5,8 @@ Owner: backend (`backend/`). The frontend imports **only** these functions and m
 ```python
 from backend import (process_ticket, get_ticket, get_ticket_history,
                      get_dashboard_stats, get_system_status,
-                     review_ticket, get_pending_reviews, check_models, replay_ticket)
+                     review_ticket, get_pending_reviews, check_models, replay_ticket,
+                     get_incidents, close_incident)
 ```
 
 Run Streamlit from the repository root (`streamlit run frontend/app.py`). If `import backend` fails, add the repo root to `sys.path` at the top of `app.py`:
@@ -68,9 +69,19 @@ Plays back a **previously recorded run** event by event with its original pacing
 No LLM call, nothing recomputed. Returned ticket has `"replay": true` and `"recorded_at"`, and every event has `"replay": true`.
 **UI must show a clear "RECORDED RUN - recorded at HH:MM" label.** Use as a backup if the network fails during the pitch.
 
+### `get_incidents(open_only=True) -> list[dict]` / `close_incident(incident_id)`
+Campus incidents found by the **Incident Agent**: when 3+ students report the same category at an overlapping
+location within 60 min, the agent compares the reports and, if they are the same problem, groups them.
+```json
+[{"incident_id": "INC-1121-A3F2", "title": "Wi-Fi outage - Main Library", "category": "it_network",
+  "location": "library", "department": "IT Service Desk", "status": "open", "report_count": 4,
+  "ticket_ids": ["UR-...", "UR-..."], "created_at": "...", "updated_at": "..."}]
+```
+Show an **Active incidents** panel on the dashboard (title, location, report count, owner, Close button).
+
 ### `get_dashboard_stats() -> dict`
 ```json
-{"total_tickets": 5, "verified_solutions": 3, "pending_human_approval": 2, "human_reviewed": 1,
+{"open_incidents": 1, "total_tickets": 5, "verified_solutions": 3, "pending_human_approval": 2, "human_reviewed": 1,
  "avg_processing_time_ms": 7400, "total_auditor_rejections": 5}
 ```
 `avg_processing_time_ms` is `null` when there are no tickets.
@@ -130,10 +141,17 @@ The trace event `model` field shows which model actually answered each step (sho
   "message_draft": {                                 // Communication Agent output, null if the step failed
     "to_department": "IT Service Desk", "channel": "IT Service Desk ticket form ...",
     "subject": "...", "body": "Dear IT Service Desk, ... [your name] [student ID]",
-    "contains_invented_contacts": false, "is_draft": true   // never sent automatically -> show a Copy button
+    "contains_invented_contacts": false,
+    "unsupported_claims": [],      // past actions the draft claims the student did but never said (after 1 self-correction retry)
+    "self_corrected": false,       // true = first draft invented actions, the agent rewrote it
+    "is_draft": true               // never sent automatically -> show a Copy button
   },
   "input_guard": {"truncated": false, "injection_suspected": false, "patterns": []},  // show a "security flag" chip if true
   "language": "English",                             // language the student wrote in (any language is accepted)
+  "location": "library",                             // place named by the student, or null
+  "incident": null,                                  // or, when this report is part of a detected incident:
+  // {"incident_id": "INC-1121-A3F2", "title": "Wi-Fi outage - Main Library", "report_count": 3,
+  //  "location": "library", "is_new": true, "ticket_ids": [...]}   -> show a banner "Part of incident ... (3 reports)"
   "human_review": null,                              // after review_ticket:
   // {"decision": "APPROVE", "reviewer": "Dr. X", "note": "...", "reviewed_at": "...", "previous_status": "awaiting_human_approval"}
 
@@ -141,7 +159,7 @@ The trace event `model` field shows which model actually answered each step (sho
     "triage": {
       "summary": "...", "category": "it_network", "urgency": "high", "urgency_reason": "...",
       "time_sensitive": true, "safety_risk": false, "key_facts": ["an exam is affected or imminent"],
-      "is_support_request": true, "language": "English"
+      "location": "", "exam_involved": true, "is_support_request": true, "language": "English"
     },
     "routing": {
       "workflow": "it_network", "department": "IT Service Desk",
@@ -189,6 +207,7 @@ The trace event `model` field shows which model actually answered each step (sho
      "timestamp": "..."}
     // decision_type: classification | routing | human_approval_required | audit | retry | escalation | finalize
     //                | human_review | security (INJECTION_FLAGGED) | input (TRUNCATED) | scope (OUT_OF_SCOPE)
+    //                | incident (INCIDENT_DETECTED / NO_INCIDENT / INCIDENT_OPENED / INCIDENT_UPDATED)
   ],
 
   "autonomy_metrics": {
@@ -197,6 +216,7 @@ The trace event `model` field shows which model actually answered each step (sho
     "auditor_rejections": 1,
     "revision_attempts": 1,
     "human_escalations": 0,
+    "incident_detected": false,
     "llm_calls_live": 6,
     "llm_calls_simulated": 0,
     "total_execution_time_ms": 8123
@@ -222,7 +242,8 @@ If `status == "failed"`, fields after the failure point may be `null` / missing 
 {"step": 3, "agent": "Resolution Agent", "status": "error", "summary": "LLMError: ...", "output": null}
 ```
 
-Agents: `Triage Agent`, `Routing Agent`, `Resolution Agent`, `Auditor Agent`, `Communication Agent` (last step),
+Agents: `Triage Agent`, `Incident Agent` (only when 2+ recent similar reports exist), `Routing Agent`,
+`Resolution Agent`, `Auditor Agent`, `Communication Agent` (last step),
 `Orchestrator` (decisions only), `Human Reviewer` (only after `review_ticket`).
 `step` is shared by a started/completed pair. Resolution and Auditor appear once per attempt.
 `fallback_errors` non-empty = the primary provider failed and another provider (or the simulation) answered.
@@ -255,6 +276,7 @@ the Orchestrator escalates immediately (decision reason starts with "No progress
 | `I was sick and need to reschedule my calculus exam to a new date.` | `awaiting_human_approval` |
 | `My private landlord in the city refuses to return my rental deposit.` | outside university scope -> 3 rejections -> `escalated_to_human` |
 | `My scholarship payment did not arrive this month.` | Student Finance Office, `awaiting_human_approval` |
+| 3x within an hour: `The Wi-Fi is down in the library` / `No internet in the library` / `Eduroam not working at the library` | 3rd report -> Incident Agent -> `incident` opened, priority raised to high |
 
 Offline mode simulates only the LLM text. Orchestration, auditor checks, retries, escalation and the database are the real code.
 

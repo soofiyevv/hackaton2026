@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from typing import Callable
 
-from . import config, db, llm, orchestrator
+from . import config, db, incidents, llm, orchestrator
 
 __all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status",
-           "review_ticket", "get_pending_reviews", "check_models", "replay_ticket"]
+           "review_ticket", "get_pending_reviews", "check_models", "replay_ticket", "get_incidents", "close_incident"]
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
@@ -72,3 +72,14 @@ def replay_ticket(ticket_id: str, on_event: Callable[[dict], None] | None = None
     """Replay a recorded run (same events, original pacing, no LLM calls) for offline demos.
     Result has replay=True and recorded_at -> the UI must show a 'RECORDED RUN' label."""
     return orchestrator.replay(ticket_id, on_event, speed)
+
+
+def get_incidents(open_only: bool = True) -> list[dict]:
+    """Campus incidents detected from several similar reports:
+    [{incident_id, title, category, location, department, status, report_count, ticket_ids, created_at, updated_at}]"""
+    return incidents.list_incidents(open_only)
+
+
+def close_incident(incident_id: str) -> None:
+    """Staff marks an incident as resolved (status -> closed)."""
+    incidents.close(incident_id)

@@ -42,8 +42,13 @@ def _has(text: str, words) -> bool:
     return any(w in low for w in words)
 
 
+_EXAM_RE = re.compile(
+    r"\b(exam|exams|midterm|test|quiz|vizsg\w*|zh|zárthelyi\w*|экзам\w*|зач[её]т\w*|сесси\w*|sınav\w*|"
+    r"prüfung\w*|klausur\w*|examen\w*|esame\w*|egzamin\w*|zkouš\w*|امتحان)", re.IGNORECASE)
+
+
 def mentions_exam(text: str) -> bool:
-    return bool(re.search(r"\b(exam|exams|midterm|test|quiz)\b", text.lower()))
+    return bool(_EXAM_RE.search(text or ""))
 
 
 def triage(user_input: str, category_hint: str | None, urgency_hint: str | None) -> dict:
@@ -65,6 +70,8 @@ def triage(user_input: str, category_hint: str | None, urgency_hint: str | None)
         facts.append(f"location: {room.group(0)}")
     if exam:
         facts.append("an exam is affected or imminent")
+    place = re.search(r"\b(library|canteen|cafeteria|dorm\w*|gym|lab\w*|building\s+[A-Za-z0-9]+|"
+                      r"(?:class)?room\s*[A-Za-z]?\d{1,4}|lecture hall\s*[A-Za-z0-9]*)", user_input, re.I)
     return {
         "summary": user_input.strip()[:160],
         "category": category,
@@ -73,6 +80,7 @@ def triage(user_input: str, category_hint: str | None, urgency_hint: str | None)
         "time_sensitive": exam or urgency in ("high", "critical"),
         "safety_risk": safety,
         "key_facts": facts,
+        "location": place.group(0) if place else "",
         "exam_involved": exam,
         "is_support_request": not re.search(
             r"\b(poem|joke|capital of|recipe|song|story|ignore (all |previous )?instructions)\b", user_input, re.I),
@@ -113,7 +121,7 @@ def resolution(triage_out: dict, routing_out: dict, kb_entries: list[dict], feed
         for proc in e["procedures"][:3]:
             steps.append({"action": proc, "owner": "student", "kb_ref": e["id"]})
     time_critical = []
-    if revising and triage_out["time_sensitive"]:
+    if revising and (triage_out["time_sensitive"] or triage_out["urgency"] in ("high", "critical")):
         time_critical = [s["action"] for s in steps if s["kb_ref"] in ("KB-EXAM-01", "KB-SAFE-01")][:2] or \
                         [steps[0]["action"]] if steps else []
     if not entries:
@@ -153,3 +161,9 @@ def communication(user_input: str, tri: dict, rout: dict, sol: dict, status: str
                  + ("I am requesting a staff decision on this matter. " if status == "awaiting_human_approval" else "")
                  + "\n\nKind regards,\n[your name]\n[student ID]"),
     }
+
+
+def incident(tri: dict, similar: list[dict]) -> dict:
+    return {"same_incident": True, "matching_ticket_ids": [r["ticket_id"] for r in similar],
+            "title": f"{tri['category'].replace('_', ' ').title()} - {tri['location']}",
+            "reason": f"{len(similar) + 1} reports of the same category at the same location within the window."}

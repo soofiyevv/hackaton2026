@@ -129,7 +129,13 @@ def stats() -> dict:
         rejections = c.execute(
             "SELECT COUNT(*) FROM decisions WHERE decision_type='audit' AND decision='REJECT'"
         ).fetchone()[0]
+    try:
+        from . import incidents as _inc
+        open_inc = len(_inc.list_incidents(open_only=True))
+    except Exception:
+        open_inc = None
     return {
+        "open_incidents": open_inc,
         "total_tickets": total,
         "verified_solutions": verified,
         "pending_human_approval": pending,

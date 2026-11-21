@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from typing import Callable
 
-from . import agents, config, db, guard, kb
+from . import agents, config, db, guard, incidents, kb
 from .llm import LLMClient, LLMResult
 
 EventCallback = Callable[[dict], None]
@@ -99,8 +99,11 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
         "kb_notice": kb.notice(),
         "input_guard": {k: v for k, v in check.items() if k != "text"},
         "language": None,
+        "location": None,
+        "incident": None,
     }
     rejections = revisions = escalations = 0
+    pending_incident = None
     try:
         if check["injection_suspected"]:
             run.decide("Orchestrator", "security", "INJECTION_FLAGGED",
@@ -112,7 +115,8 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
                         lambda o: f"{o['category']} / urgency {o['urgency']}")
         run.decide("Triage Agent", "classification", f"{tri['category']}|{tri['urgency']}",
                    tri["urgency_reason"] or "classified from report")
-        result.update(category=tri["category"], priority=tri["urgency"], language=tri["language"])
+        result.update(category=tri["category"], priority=tri["urgency"], language=tri["language"],
+                      location=tri["location"] or None)
         result["agent_results"]["triage"] = tri
 
         if not tri["is_support_request"]:
@@ -127,6 +131,28 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
                         "wellbeing...). Please describe a problem you need help with.",
             }
             raise _StopPipeline()
+
+        # Incident Detection: only runs when there are recent similar reports (no LLM call otherwise)
+        similar = incidents.recent_similar(tri["category"], tri["location"], exclude_ticket=run.ticket_id)
+        if tri["location"] and len(similar) + 1 >= incidents.THRESHOLD:
+            inc_check = run.agent("Incident Agent", f"Compare with {len(similar)} recent similar report(s)",
+                                  lambda: agents.incident_check(llm, user_input, tri, similar),
+                                  lambda o: ("SAME INCIDENT: " + o["title"]) if o["same_incident"]
+                                  else "Not the same incident")
+            result["agent_results"]["incident_check"] = inc_check
+            if inc_check["same_incident"]:
+                pending_incident = (inc_check, similar)
+                old = tri["urgency"]
+                if old in ("low", "medium"):
+                    tri["urgency"] = "high"
+                    result["priority"] = "high"
+                tri["incident_note"] = (f"{len(inc_check['matching_ticket_ids']) + 1} students reported this at "
+                                        f"{tri['location']} within {incidents.WINDOW_MIN} min: probable shared "
+                                        "outage, not an individual problem. Say so in the plan.")
+                run.decide("Incident Agent", "incident", "INCIDENT_DETECTED",
+                           f"{inc_check['reason']} Urgency {old} -> {tri['urgency']}")
+            else:
+                run.decide("Incident Agent", "incident", "NO_INCIDENT", inc_check["reason"] or "reports differ")
 
         rout = run.agent("Routing Agent", "Select workflow and owning department",
                          lambda: agents.routing(llm, user_input, tri),
@@ -205,6 +231,16 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
             final["note"] = "UNVERIFIED draft: the auditor rejected every attempt. Escalated to a human."
         result["final_solution"] = final
 
+        if pending_incident:
+            inc_check, similar = pending_incident
+            inc = incidents.upsert(tri["category"], tri["location"], rout["department"], inc_check["title"],
+                                   inc_check["matching_ticket_ids"] + [run.ticket_id])
+            result["incident"] = {"incident_id": inc["incident_id"], "title": inc["title"],
+                                  "report_count": len(inc["ticket_ids"]), "location": inc["location"],
+                                  "is_new": inc["is_new"], "ticket_ids": inc["ticket_ids"]}
+            run.decide("Orchestrator", "incident", "INCIDENT_OPENED" if inc["is_new"] else "INCIDENT_UPDATED",
+                       f"{inc['incident_id']}: {len(inc['ticket_ids'])} linked reports, owner {rout['department']}")
+
         # Communication Agent: ready-to-send message draft (never sent automatically)
         try:
             msg = run.agent("Communication Agent", "Draft message to the department",
@@ -238,6 +274,7 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
         "auditor_rejections": rejections,
         "revision_attempts": revisions,
         "human_escalations": escalations,
+        "incident_detected": bool(result.get("incident")),
         "llm_calls_live": run.live_calls,
         "llm_calls_simulated": run.simulated_calls,
         "total_execution_time_ms": int((time.perf_counter() - started) * 1000),

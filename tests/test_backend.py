@@ -200,3 +200,32 @@ def test_healthcheck_without_keys(monkeypatch):
     monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
     res = check_models()
     assert res and all(x["status"] != "ok" for x in res)
+
+
+def test_unsupported_claims_detector():
+    from backend.agents import unsupported_claims
+    assert unsupported_claims("I have inspected the cables and I've reconnected.", "projector broken") == \
+        ["I have inspected", "I've reconnected"]
+    assert unsupported_claims("I have tried reconnecting.", "I tried to reconnect twice") == []
+    assert unsupported_claims("I will check the cables.", "projector broken") == []
+
+
+def test_incident_detected_after_three_similar_reports():
+    from backend import process_ticket, get_incidents, get_dashboard_stats
+    a = process_ticket("The Wi-Fi is down in the library")
+    b = process_ticket("No internet in the library since 10 minutes")
+    assert a["incident"] is None and b["incident"] is None
+    c = process_ticket("Eduroam not working at the library, cannot connect")
+    assert c["incident"] and c["incident"]["report_count"] == 3 and c["incident"]["is_new"]
+    assert c["priority"] == "high"
+    assert any(d["decision"] == "INCIDENT_DETECTED" for d in c["decisions"])
+    d = process_ticket("library wifi broken for me too")
+    assert d["incident"]["incident_id"] == c["incident"]["incident_id"] and d["incident"]["report_count"] == 4
+    assert len(get_incidents()) == 1 and get_dashboard_stats()["open_incidents"] == 1
+
+
+def test_no_incident_for_different_places():
+    from backend import process_ticket
+    for place in ("library", "canteen", "building C"):
+        r = process_ticket(f"The Wi-Fi is down in the {place}")
+    assert r["incident"] is None

@@ -3,6 +3,7 @@
     python demo/run_demo.py              # mode from .env (default auto)
     python demo/run_demo.py --offline    # deterministic simulation, no API
     python demo/run_demo.py "my own problem text"
+    python demo/run_demo.py --incident   # 3 similar reports -> Incident Agent groups them
 """
 import sys
 from pathlib import Path
@@ -16,6 +17,11 @@ SCENARIOS = [
     "There is a broken chair in classroom 204.",
     "I was sick and need to reschedule my calculus exam to a new date.",
     "My private landlord in the city refuses to return my rental deposit.",
+]
+INCIDENT = [
+    "The Wi-Fi is down in the main library",
+    "No internet in the library since 10 minutes, eduroam fails",
+    "Eduroam not working at the library, I cannot connect at all",
 ]
 
 
@@ -39,11 +45,15 @@ def main() -> None:
     status = get_system_status()
     print(f"Mode: {mode or status['mode']} | providers: "
           + ", ".join(f"{k}={'ready' if v['ready'] else 'not ready'}" for k, v in status["providers"].items()))
-    for text in args or SCENARIOS:
+    texts = INCIDENT if "--incident" in sys.argv else (args or SCENARIOS)
+    for text in texts:
         print("\n" + "=" * 90 + f"\nSTUDENT: {text}")
         r = process_ticket(text, mode=mode, on_event=show)
         print(f"RESULT {r['ticket_id']}: status={r['status']} | {r['category']} / {r['priority']} -> "
               f"{r['assigned_department']} | revisions={r['revision_count']} | mode={r['execution_mode']}")
+        if r.get("incident"):
+            i = r["incident"]
+            print(f"INCIDENT {i['incident_id']}: {i['title']} ({i['report_count']} reports, new={i['is_new']})")
         if r["error"]:
             print("ERROR:", r["error"])
         print("METRICS:", r["autonomy_metrics"])
