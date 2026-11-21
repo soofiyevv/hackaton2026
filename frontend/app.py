@@ -892,6 +892,13 @@ def page_history() -> None:
     header("Case history", "Your cases, with the full trace of what each agent did.")
     scope = st.radio("Show", ["My cases", "All cases (staff view)"], horizontal=True, label_visibility="collapsed",
                      key="hist_scope")
+    try:
+        _ck = st.context.cookies.get("ur_vid")
+    except Exception:
+        _ck = None
+    st.markdown(f'<div class="meta" style="margin:-4px 0 10px">Your visitor ID: {e(VISITOR)} · '
+                f'remembered by browser: {"yes" if _ck == VISITOR else "not yet"} · '
+                f'all stored cases: {len(get_ticket_history(limit=1000))}</div>', unsafe_allow_html=True)
     if HISTORY_HAS_OWNER:
         hist = get_ticket_history(owner=VISITOR if scope == "My cases" else None)
     else:
