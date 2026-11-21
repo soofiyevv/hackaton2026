@@ -167,8 +167,8 @@ div[data-testid="stToggle"] label p {{ color:{CREAM} !important; font-weight:600
 }}
 
 /* cookie consent banner */
-.st-key-consent {{ position: fixed !important; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 2000;
-  width: min(780px, calc(100vw - 32px)); background: rgba(8,28,21,.97); backdrop-filter: blur(18px);
+.st-key-consent {{ position: fixed !important; left: 16px !important; right: 16px !important; bottom: 40px;
+  margin: 0 auto !important; z-index: 2000; width: auto !important; max-width: 780px; background: rgba(8,28,21,.97); backdrop-filter: blur(18px);
   border: 1px solid rgba(240,194,75,.55); border-radius: 22px; padding: 26px 28px 22px !important;
   box-shadow: 0 30px 80px -20px rgba(0,0,0,.9), 0 0 0 1px rgba(240,194,75,.08);
   animation: pageSwap .5s cubic-bezier(.2,.75,.2,1) both; overflow: visible !important; height: auto !important; }}
@@ -176,7 +176,10 @@ div[data-testid="stToggle"] label p {{ color:{CREAM} !important; font-weight:600
 .ck-text {{ font-size:1.05rem; color:{CREAM}; line-height:1.55; margin-bottom:10px; }}
 .st-key-consent .stButton > button {{ min-height: 3.1rem; font-size: 1.05rem; }}
 .st-key-consent .stButton > button p {{ font-size: 1.05rem !important; font-weight: 700; }}
-@media (max-width: 640px) {{ .st-key-consent {{ bottom: 16px; padding: 20px 18px 16px !important; }}
+@media (max-width: 640px) {{ .st-key-consent {{ bottom: 90px; left: 12px !important; right: 12px !important;
+  padding: 20px 18px 16px !important; }}
+  .st-key-consent div[data-testid="stHorizontalBlock"] {{ flex-direction: column !important; gap: 8px !important; }}
+  .st-key-consent div[data-testid="stColumn"] {{ width: 100% !important; flex: 1 1 auto !important; }}
   .ck-title {{ font-size:1.2rem; }} .ck-text {{ font-size:.95rem; }} }}
 div[data-testid="stElementContainer"]:has(iframe[title*="extra_streamlit_components"]),
 div[data-testid="stElementContainer"]:has(iframe[title*="cookie"]) {{ height: 0 !important; overflow: hidden; margin: 0 !important; }}
