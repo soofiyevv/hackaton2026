@@ -165,8 +165,15 @@ div[data-testid="stToggle"] label p {{ color:{CREAM} !important; font-weight:600
   .stat:nth-child(4n+4) {{ animation-range: entry 26% cover 42%; }}
 }}
 
-iframe[title="streamlit_components_v1.html"], div[data-testid="stCustomComponentV1"] {{ display: none; }}
-div[data-testid="stElementContainer"]:has(iframe[height="0"]) {{ display: none; }}
+/* cookie consent banner */
+.st-key-consent {{ position: fixed !important; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 2000;
+  width: min(560px, calc(100vw - 32px)); background: rgba(8,28,21,.96); backdrop-filter: blur(16px);
+  border: 1px solid rgba(240,194,75,.45); border-radius: 18px; padding: 16px 18px 12px;
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,.85); animation: pageSwap .5s cubic-bezier(.2,.75,.2,1) both; }}
+.ck-title {{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:{GOLD}; margin-bottom:4px; }}
+.ck-text {{ font-size:.88rem; color:{CREAM}; line-height:1.45; }}
+div[data-testid="stElementContainer"]:has(iframe[title*="extra_streamlit_components"]),
+div[data-testid="stElementContainer"]:has(iframe[title*="cookie"]) {{ height: 0 !important; overflow: hidden; margin: 0 !important; }}
 
 /* page transition: every page lives in its own keyed container, re-mounted on navigation */
 @keyframes pageSwap {{ 0% {{ opacity: 0; transform: translateY(22px); filter: blur(8px); }}
@@ -653,32 +660,66 @@ def live_runner(pipe_ph, tl_ph):
 status = get_system_status()
 
 # anonymous visitor id: each visitor sees their own case history.
-# Remembered in a browser cookie (1 year) and mirrored in the URL (?v=...), so it survives closing the site.
+# With cookie consent the id is kept in a first-party cookie for a year; otherwise only for the session.
+VID_COOKIE, CONSENT_COOKIE = "ur_vid", "ur_consent"
+try:
+    _cookies = dict(st.context.cookies)
+except Exception:
+    _cookies = {}
 if "visitor" not in st.session_state:
     import uuid
-    vid = None
-    try:
-        vid = st.context.cookies.get("ur_vid")
-    except Exception:
-        pass
+    consent = _cookies.get(CONSENT_COOKIE)
+    vid = _cookies.get(VID_COOKIE) if consent == "yes" else None
     vid = vid or st.query_params.get("v") or uuid.uuid4().hex[:10]
     st.session_state["visitor"] = "".join(ch for ch in str(vid) if ch.isalnum())[:32] or uuid.uuid4().hex[:10]
+    st.session_state["consent"] = consent if consent in ("yes", "no") else None
 try:
     if st.query_params.get("v") != st.session_state["visitor"]:
         st.query_params["v"] = st.session_state["visitor"]
 except Exception:
     pass
-if not st.session_state.get("cookie_set"):
+
+try:
+    import extra_streamlit_components as stx
+    _cookie_manager = stx.CookieManager(key="ur_cookie_manager")
+except Exception:  # library missing: consent still works for the session
+    _cookie_manager = None
+
+
+def _write_consent_cookies() -> None:
+    if not _cookie_manager:
+        return
+    from datetime import timedelta
+    expires = datetime.now() + timedelta(days=365)
     try:
-        import streamlit.components.v1 as components
-        _vid = st.session_state["visitor"]
-        components.html(
-            "<script>(function(){var c='ur_vid=" + _vid + "; max-age=31536000; path=/; SameSite=Lax';"
-            "try{document.cookie=c;}catch(e){} try{window.parent.document.cookie=c;}catch(e){}"
-            "try{window.top.document.cookie=c;}catch(e){}})();</script>", height=0)
-        st.session_state["cookie_set"] = True
+        _cookie_manager.set(CONSENT_COOKIE, st.session_state["consent"], expires_at=expires, key="set_ur_consent")
+        if st.session_state["consent"] == "yes":
+            _cookie_manager.set(VID_COOKIE, st.session_state["visitor"], expires_at=expires, key="set_ur_vid")
     except Exception:
         pass
+
+
+if st.session_state.pop("write_cookies", False):
+    _write_consent_cookies()
+
+if st.session_state.get("consent") is None:
+    try:
+        _banner = st.container(key="consent")
+    except TypeError:
+        _banner = st.container()
+    with _banner:
+        st.markdown('<div class="ck-title">Cookies</div><div class="ck-text">We use one functional cookie to remember '
+                    'your anonymous ID, so you can see your own cases when you come back. No tracking, no ads, '
+                    'no personal data.</div>', unsafe_allow_html=True)
+        _a, _b = st.columns(2)
+        if _a.button("Accept", key="ck_yes", type="primary", use_container_width=True):
+            st.session_state["consent"] = "yes"
+            st.session_state["write_cookies"] = True
+            st.rerun()
+        if _b.button("Only this session", key="ck_no", use_container_width=True):
+            st.session_state["consent"] = "no"
+            st.session_state["write_cookies"] = True
+            st.rerun()
 VISITOR = st.session_state["visitor"]
 
 import inspect  # noqa: E402
@@ -889,23 +930,19 @@ def page_staff() -> None:
                 st.rerun()
 
 def page_history() -> None:
-    header("Case history", "Your cases, with the full trace of what each agent did.")
-    scope = st.radio("Show", ["My cases", "All cases (staff view)"], horizontal=True, label_visibility="collapsed",
-                     key="hist_scope")
-    try:
-        _ck = st.context.cookies.get("ur_vid")
-    except Exception:
-        _ck = None
-    st.markdown(f'<div class="meta" style="margin:-4px 0 10px">Your visitor ID: {e(VISITOR)} · '
-                f'remembered by browser: {"yes" if _ck == VISITOR else "not yet"} · '
-                f'all stored cases: {len(get_ticket_history(limit=1000))}</div>', unsafe_allow_html=True)
+    header("Case history", "Your cases, with the full trace of what each agent did. "
+           "Accept the cookie to keep them when you come back.")
+    mine = "My cases" if st.session_state.get("consent") == "yes" else "This session"
+    scope = st.radio("Show", [mine, "All cases (staff view)"], horizontal=True,
+                     label_visibility="collapsed", key="hist_scope")
     if HISTORY_HAS_OWNER:
-        hist = get_ticket_history(owner=VISITOR if scope == "My cases" else None)
+        hist = get_ticket_history(owner=VISITOR if scope == mine else None)
     else:
         hist = get_ticket_history()
     if not hist:
         st.markdown('<div class="card small">No cases yet. Describe a problem on the Resolve page; '
-                    'your cases appear here and only you see them in this view.</div>', unsafe_allow_html=True)
+                    'it appears here, visible only to you. Staff can see every case in "All cases".</div>',
+                    unsafe_allow_html=True)
     else:
         df = pd.DataFrame(hist)[["ticket_id", "created_at", "original_input", "category", "priority",
                                  "assigned_department", "status", "revision_count", "execution_mode"]]
