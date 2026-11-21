@@ -95,6 +95,7 @@ label p {{ color: {MUTED} !important; font-size: .82rem !important; }}
 .stButton > button[kind="primary"] {{ background: linear-gradient(135deg, {GOLD} 0%, #E3A92E 100%); color: #14110A; border: none;
   box-shadow: 0 8px 28px -8px rgba(240,194,75,.55); }}
 .stButton > button[kind="primary"]:hover {{ box-shadow: 0 10px 34px -6px rgba(240,194,75,.75); color: #14110A; }}
+.stButton > button[kind="primary"] p, .stButton > button[kind="primary"] span {{ color: #14110A !important; font-weight: 700; }}
 
 /* metrics */
 div[data-testid="stMetric"] {{ background: {GREEN_CARD}; backdrop-filter: blur(10px); border: 1px solid {GREEN_LINE};
@@ -166,12 +167,17 @@ div[data-testid="stToggle"] label p {{ color:{CREAM} !important; font-weight:600
 }}
 
 /* cookie consent banner */
-.st-key-consent {{ position: fixed !important; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 2000;
-  width: min(560px, calc(100vw - 32px)); background: rgba(8,28,21,.96); backdrop-filter: blur(16px);
-  border: 1px solid rgba(240,194,75,.45); border-radius: 18px; padding: 16px 18px 12px;
-  box-shadow: 0 24px 60px -20px rgba(0,0,0,.85); animation: pageSwap .5s cubic-bezier(.2,.75,.2,1) both; }}
-.ck-title {{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:{GOLD}; margin-bottom:4px; }}
-.ck-text {{ font-size:.88rem; color:{CREAM}; line-height:1.45; }}
+.st-key-consent {{ position: fixed !important; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 2000;
+  width: min(780px, calc(100vw - 32px)); background: rgba(8,28,21,.97); backdrop-filter: blur(18px);
+  border: 1px solid rgba(240,194,75,.55); border-radius: 22px; padding: 26px 28px 22px !important;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.9), 0 0 0 1px rgba(240,194,75,.08);
+  animation: pageSwap .5s cubic-bezier(.2,.75,.2,1) both; overflow: visible !important; height: auto !important; }}
+.ck-title {{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.45rem; color:{GOLD}; margin-bottom:8px; }}
+.ck-text {{ font-size:1.05rem; color:{CREAM}; line-height:1.55; margin-bottom:10px; }}
+.st-key-consent .stButton > button {{ min-height: 3.1rem; font-size: 1.05rem; }}
+.st-key-consent .stButton > button p {{ font-size: 1.05rem !important; font-weight: 700; }}
+@media (max-width: 640px) {{ .st-key-consent {{ bottom: 16px; padding: 20px 18px 16px !important; }}
+  .ck-title {{ font-size:1.2rem; }} .ck-text {{ font-size:.95rem; }} }}
 div[data-testid="stElementContainer"]:has(iframe[title*="extra_streamlit_components"]),
 div[data-testid="stElementContainer"]:has(iframe[title*="cookie"]) {{ height: 0 !important; overflow: hidden; margin: 0 !important; }}
 
@@ -685,6 +691,24 @@ try:
 except Exception:  # library missing: consent still works for the session
     _cookie_manager = None
 
+# second way to read the cookies (the component reports them a moment after the page loads)
+if _cookie_manager and not st.session_state.get("cookie_checked"):
+    try:
+        _all = _cookie_manager.get_all(key="ur_get_all") or {}
+    except Exception:
+        _all = {}
+    if _all:
+        st.session_state["cookie_checked"] = True
+        if _all.get(CONSENT_COOKIE) in ("yes", "no") and st.session_state.get("consent") is None:
+            st.session_state["consent"] = _all[CONSENT_COOKIE]
+        _saved = "".join(ch for ch in str(_all.get(VID_COOKIE) or "") if ch.isalnum())[:32]
+        if _all.get(CONSENT_COOKIE) == "yes" and _saved and _saved != st.session_state["visitor"]:
+            st.session_state["visitor"] = _saved
+            try:
+                st.query_params["v"] = _saved
+            except Exception:
+                pass
+
 
 def _write_consent_cookies() -> None:
     if not _cookie_manager:
@@ -692,9 +716,14 @@ def _write_consent_cookies() -> None:
     from datetime import timedelta
     expires = datetime.now() + timedelta(days=365)
     try:
-        _cookie_manager.set(CONSENT_COOKIE, st.session_state["consent"], expires_at=expires, key="set_ur_consent")
-        if st.session_state["consent"] == "yes":
-            _cookie_manager.set(VID_COOKIE, st.session_state["visitor"], expires_at=expires, key="set_ur_vid")
+        for name, value, k in ((CONSENT_COOKIE, st.session_state["consent"], "set_ur_consent"),
+                               (VID_COOKIE, st.session_state["visitor"], "set_ur_vid")):
+            if name == VID_COOKIE and st.session_state["consent"] != "yes":
+                continue
+            try:  # whole-site cookie, so the server sees it on the next visit
+                _cookie_manager.set(name, value, expires_at=expires, key=k, path="/", same_site="lax")
+            except TypeError:  # older library without path/same_site arguments
+                _cookie_manager.set(name, value, expires_at=expires, key=k)
     except Exception:
         pass
 
