@@ -189,16 +189,16 @@ div[class*="st-key-pg_"] > div > div:nth-child(3) {{ animation: pageSwap .6s .12
 @media (max-width: 640px) {{
   .st-key-ctrl div[data-testid="stColumn"]:first-child {{ display: none !important; }}
   .st-key-ctrl div[data-testid="stColumn"] {{ width: auto !important; flex: 1 1 0 !important; }}
-  .block-container {{ padding-top: 4.6rem; padding-left: 1rem; padding-right: 1rem; }}
-  .hero-h {{ font-size: 2.1rem; }}
-  .hero-k, .heritage {{ font-size: .68rem; margin: 4px 4px 0 0; }}
-  .bigq {{ font-size: 1.45rem; }}
-  .pipe {{ padding: 14px 8px; }}
-  .node {{ min-width: 64px; }}
-  .orb {{ width: 42px; height: 42px; border-radius: 12px; font-size: 1rem; }}
-  .link {{ flex-basis: 10px; }}
-  .nname {{ font-size: .72rem; }}
-  .stat .v {{ font-size: 2rem; }}
+  .block-container {{ padding-top: 4.6rem !important; padding-left: 1rem !important; padding-right: 1rem !important; }}
+  .hero-h {{ font-size: 2.1rem !important; }}
+  .hero-k, .heritage {{ font-size: .68rem !important; margin: 4px 4px 0 0 !important; }}
+  .bigq {{ font-size: 1.45rem !important; }}
+  .pipe {{ padding: 14px 8px !important; }}
+  .node {{ min-width: 64px !important; }}
+  .orb {{ width: 42px !important; height: 42px !important; border-radius: 12px !important; font-size: 1rem !important; }}
+  .link {{ flex-basis: 10px !important; }}
+  .nname {{ font-size: .72rem !important; }}
+  .stat .v {{ font-size: 2rem !important; }}
 }}
 
 /* landing sections */
