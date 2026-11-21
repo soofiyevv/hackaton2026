@@ -42,7 +42,8 @@ def triage(llm: LLMClient, user_input: str, category_hint=None, urgency_hint=Non
 
 Return JSON with keys:
 - summary: one-sentence neutral summary
-- category: one of {CATEGORIES} (use "other" if none clearly fits)
+- category: one of {CATEGORIES}. The category is the TYPE of problem, not the place
+  (Wi-Fi down in the library = it_network; broken chair in the dorm = facilities). Use "other" if none fits.
 - urgency: one of {URGENCIES}
 - urgency_reason: short reason
 - time_sensitive: true if a deadline/exam/class is imminent

@@ -261,3 +261,11 @@ def test_replay_from_recorded_file(tmp_path, monkeypatch):
     rep = replay_ticket(r["ticket_id"], speed=0)
     assert rep["replay"] and rep["ticket_id"] == r["ticket_id"]
     assert get_recorded_runs()[0]["ticket_id"] == r["ticket_id"]
+
+
+def test_incident_across_related_categories():
+    from backend import process_ticket
+    process_ticket("The Wi-Fi is down in the library")
+    process_ticket("No internet in the library", category="library")   # triage put it under the place
+    c = process_ticket("Eduroam not working at the library")
+    assert c["incident"] and c["incident"]["report_count"] == 3

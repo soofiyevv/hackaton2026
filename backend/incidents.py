@@ -35,16 +35,22 @@ def _parse(ts: str) -> datetime:
     return datetime.fromisoformat(ts)
 
 
+RELATED = {"it_network": {"library"}, "library": {"it_network"}, "classroom_equipment": {"facilities"},
+           "facilities": {"classroom_equipment", "housing"}, "housing": {"facilities"}}
+
+
 def recent_similar(category: str, location: str, exclude_ticket: str | None = None) -> list[dict]:
-    """Recent tickets (window) with the same category and an overlapping location."""
+    """Recent tickets (window) at an overlapping location with the same or a related category.
+    The Incident Agent (LLM) then decides whether they really describe the same problem."""
     mine = location_tokens(location)
     if not mine:
         return []
     since = datetime.now(timezone.utc) - timedelta(minutes=WINDOW_MIN)
     out = []
     with db.connect() as c:
-        rows = c.execute("SELECT ticket_id, created_at, result_json FROM tickets WHERE category=? "
-                         "ORDER BY created_at DESC LIMIT 200", (category,)).fetchall()
+        cats = [category, *RELATED.get(category, ())]
+        rows = c.execute(f"SELECT ticket_id, created_at, result_json FROM tickets WHERE category IN "
+                         f"({','.join('?' * len(cats))}) ORDER BY created_at DESC LIMIT 200", cats).fetchall()
     for r in rows:
         if r["ticket_id"] == exclude_ticket or _parse(r["created_at"]) < since:
             continue
@@ -66,8 +72,9 @@ def open_incident_for(category: str, location: str) -> dict | None:
     since = (datetime.now(timezone.utc) - timedelta(minutes=WINDOW_MIN * 3)).isoformat(timespec="seconds")
     with db.connect() as c:
         _ensure(c)
-        rows = c.execute("SELECT * FROM incidents WHERE status='open' AND category=? AND updated_at>=?",
-                         (category, since)).fetchall()
+        cats = [category, *RELATED.get(category, ())]
+        rows = c.execute(f"SELECT * FROM incidents WHERE status='open' AND category IN ({','.join('?' * len(cats))}) "
+                         "AND updated_at>=?", (*cats, since)).fetchall()
     for r in rows:
         if mine & location_tokens(r["location"]):
             d = dict(r)
