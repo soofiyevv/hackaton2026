@@ -7,7 +7,7 @@ from backend import (process_ticket, get_ticket, get_ticket_history,
                      get_dashboard_stats, get_system_status,
                      review_ticket, get_pending_reviews, check_models, replay_ticket,
                      get_incidents, close_incident, get_lessons_learned, get_analytics,
-                     get_recorded_runs)
+                     get_recorded_runs, submit_feedback)
 ```
 
 Run Streamlit from the repository root (`streamlit run frontend/app.py`). If `import backend` fails, add the repo root to `sys.path` at the top of `app.py`:
@@ -102,6 +102,12 @@ University view over all stored cases (bar charts / tables):
  "auditor_failed_checks": {"C4 Urgency handled": 5, ...}, "accepted_first_attempt_rate": 0.8,
  "avg_revisions": 0.2, "avg_time_ms": 3400, "human_decision_rate_by_department": {"Student Finance Office": 1.0}}
 ```
+
+### `submit_feedback(ticket_id, rating, comment="") -> dict`
+Student rates the final plan: `rating` = `"up"` | `"down"`. Stored as `result["student_feedback"] =
+{"rating", "comment", "at"}` and logged as a `Student` decision (`decision_type: "feedback"`).
+Thumbs-down comments appear in `get_lessons_learned()["student_feedback"]` and are fed into future plans
+of the same category. `get_analytics()["student_feedback"] = {"helpful": n, "not_helpful": n}`.
 
 ### `get_dashboard_stats() -> dict`
 ```json

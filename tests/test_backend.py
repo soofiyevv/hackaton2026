@@ -269,3 +269,15 @@ def test_incident_across_related_categories():
     process_ticket("No internet in the library", category="library")   # triage put it under the place
     c = process_ticket("Eduroam not working at the library")
     assert c["incident"] and c["incident"]["report_count"] == 3
+
+
+def test_student_feedback_becomes_a_lesson():
+    from backend import process_ticket, submit_feedback, get_lessons_learned, get_analytics, get_ticket
+    r = process_ticket("There is a broken chair in classroom 204.")
+    submit_feedback(r["ticket_id"], "down", "It did not say how long the repair takes")
+    assert get_ticket(r["ticket_id"])["student_feedback"]["rating"] == "down"
+    assert "how long the repair" in get_lessons_learned("facilities")["student_feedback"][0]
+    r2 = process_ticket("The heating in lecture hall A does not work")
+    applied = r2["agent_results"]["resolution_attempts"][0]["solution"]["lessons_applied"]
+    assert any("student said" in x for x in applied)
+    assert get_analytics()["student_feedback"] == {"helpful": 0, "not_helpful": 1}

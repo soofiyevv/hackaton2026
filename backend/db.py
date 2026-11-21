@@ -154,3 +154,13 @@ def save_review(result: dict, decision: dict) -> None:
                   (result["ticket_id"], decision["agent"], decision["decision_type"], decision["decision"],
                    decision["reason"], decision["timestamp"]))
 
+
+
+def save_feedback(result: dict, decision: dict) -> None:
+    with connect() as c:
+        c.execute("UPDATE tickets SET result_json=? WHERE ticket_id=?",
+                  (json.dumps(result, ensure_ascii=False), result["ticket_id"]))
+        c.execute("""INSERT INTO decisions (ticket_id, agent, decision_type, decision, reason, created_at)
+                     VALUES (?,?,?,?,?,?)""",
+                  (result["ticket_id"], decision["agent"], decision["decision_type"], decision["decision"],
+                   decision["reason"], decision["timestamp"]))

@@ -32,8 +32,12 @@ def lessons(category: str | None = None, k: int = 3) -> dict:
     by_cat: Counter = Counter()
     overall: Counter = Counter()
     llm_issues: list[str] = []
+    student: list[str] = []
     for res in _results():
         cat = res.get("category")
+        fb = res.get("student_feedback") or {}
+        if (category is None or cat == category) and fb.get("rating") == "down" and fb.get("comment"):
+            student.append(fb["comment"])
         for att in (res.get("agent_results") or {}).get("resolution_attempts") or []:
             audit = att.get("audit") or {}
             if audit.get("verdict") != "REJECT":
@@ -48,15 +52,18 @@ def lessons(category: str | None = None, k: int = 3) -> dict:
     ranked = [cid for cid, _ in by_cat.most_common()] + [cid for cid, _ in overall.most_common() if cid not in by_cat]
     items = [{"check": cid, "lesson": CHECK_LESSONS[cid], "seen_in_category": by_cat.get(cid, 0),
               "seen_overall": overall.get(cid, 0)} for cid in ranked[:k] if cid in CHECK_LESSONS]
-    return {"category": category, "lessons": items, "recent_llm_issues": llm_issues[:2]}
+    return {"category": category, "lessons": items, "recent_llm_issues": llm_issues[:2],
+            "student_feedback": student[:3]}
 
 
 def lessons_prompt(category: str) -> str:
     data = lessons(category)
-    if not data["lessons"] and not data["recent_llm_issues"]:
+    if not data["lessons"] and not data["recent_llm_issues"] and not data["student_feedback"]:
         return ""
     lines = [f"- {x['lesson']} (auditor rejected this {x['seen_overall']}x before)" for x in data["lessons"]]
     lines += [f"- Earlier auditor remark in this category: {i[:160]}" for i in data["recent_llm_issues"]]
+    lines += [f"- A student said an earlier plan in this category was not helpful: {c[:160]}"
+              for c in data["student_feedback"]]
     return "\n\nLESSONS FROM PAST AUDITOR REJECTIONS (avoid repeating them):\n" + "\n".join(lines)
 
 
@@ -66,6 +73,7 @@ def analytics() -> dict:
     n = len(res_all)
     by_cat, by_dept, by_status, by_loc, checks = Counter(), Counter(), Counter(), Counter(), Counter()
     revisions, times, first_try = [], [], 0
+    up = down = 0
     dept_esc = defaultdict(lambda: [0, 0])
     for r in res_all:
         by_cat[r.get("category") or "unknown"] += 1
@@ -78,6 +86,9 @@ def analytics() -> dict:
                                         "approved_by_staff", "rejected_by_staff")
         if r.get("location"):
             by_loc[r["location"].strip().lower()] += 1
+        fbk = (r.get("student_feedback") or {}).get("rating")
+        up += fbk == "up"
+        down += fbk == "down"
         m = r.get("autonomy_metrics") or {}
         times.append(m.get("total_execution_time_ms") or 0)
         revisions.append(r.get("revision_count") or 0)
@@ -96,5 +107,6 @@ def analytics() -> dict:
         "accepted_first_attempt_rate": round(first_try / n, 3) if n else None,
         "avg_revisions": round(sum(revisions) / n, 2) if n else None,
         "avg_time_ms": int(sum(times) / n) if n else None,
+        "student_feedback": {"helpful": up, "not_helpful": down},
         "human_decision_rate_by_department": {k: round(v[1] / v[0], 2) for k, v in dept_esc.items() if v[0]},
     }

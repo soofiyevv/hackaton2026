@@ -12,7 +12,8 @@ from . import config, db, incidents, insights, llm, orchestrator
 
 __all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_stats", "get_system_status",
            "review_ticket", "get_pending_reviews", "check_models", "replay_ticket", "get_incidents", "close_incident",
-           "get_lessons_learned", "get_analytics", "get_recorded_runs"]
+           "get_lessons_learned", "get_analytics", "get_recorded_runs",
+           "submit_feedback"]
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
@@ -101,3 +102,9 @@ def get_analytics() -> dict:
 def get_recorded_runs() -> list[dict]:
     """Recorded live runs shipped in the repo (demo/recorded_runs/), usable with replay_ticket() on any machine."""
     return orchestrator.list_recorded()
+
+
+def submit_feedback(ticket_id: str, rating: str, comment: str = "") -> dict:
+    """Student rating of the final plan: rating "up" | "down", optional comment.
+    Thumbs-down comments are fed into future plans of the same category as lessons."""
+    return orchestrator.feedback(ticket_id, rating, comment)

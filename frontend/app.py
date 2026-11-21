@@ -32,6 +32,10 @@ from backend import (  # noqa: E402
     get_lessons_learned, get_pending_reviews, get_recorded_runs, get_system_status, get_ticket,
     get_ticket_history, process_ticket, replay_ticket, review_ticket,
 )
+try:
+    from backend import submit_feedback  # noqa: E402
+except ImportError:  # older backend
+    submit_feedback = None
 
 st.set_page_config(page_title="UniResolve AI", page_icon="◆", layout="wide", initial_sidebar_state="collapsed")
 
@@ -536,6 +540,9 @@ def render_result(r: dict, recorded: bool = False) -> None:
                     unsafe_allow_html=True)
         st.code(f"Subject: {md['subject']}\n\n{md['body']}", language=None)
 
+    if submit_feedback and not recorded and r.get("ticket_id") and status != "out_of_scope_request":
+        render_feedback(r)
+
     m = r.get("autonomy_metrics") or {}
     if m:
         st.markdown('<div class="section">Autonomy metrics</div>', unsafe_allow_html=True)
@@ -553,6 +560,37 @@ def render_result(r: dict, recorded: bool = False) -> None:
         st.markdown(render_timeline(r.get("execution_trace") or []), unsafe_allow_html=True)
 
 
+
+
+def render_feedback(r: dict) -> None:
+    tid = r["ticket_id"]
+    fb = r.get("student_feedback")
+    st.markdown('<div class="section">Was this helpful?</div>', unsafe_allow_html=True)
+    if fb:
+        txt = "Thanks! Marked as helpful." if fb["rating"] == "up" else \
+            "Thanks. Your comment is now a lesson the agents use for future plans in this category."
+        st.markdown(f'<div class="card"><span class="pill {"ok" if fb["rating"] == "up" else "gold"}">'
+                    f'{"helpful" if fb["rating"] == "up" else "not helpful"}</span>&nbsp; {e(txt)}'
+                    + (f'<div class="small" style="margin-top:6px">“{e(fb["comment"])}”</div>' if fb.get("comment") else "")
+                    + '</div>', unsafe_allow_html=True)
+        return
+    c1, c2, c3 = st.columns([1, 1, 4], vertical_alignment="bottom")
+    if c1.button("👍  Helpful", key=f"up_{tid}", use_container_width=True):
+        updated = submit_feedback(tid, "up")
+        _store(updated)
+        st.rerun()
+    comment = c3.text_input("What was missing? (optional, it teaches the agents)", key=f"cm_{tid}",
+                            placeholder="e.g. it did not say how long the repair takes")
+    if c2.button("👎  Not helpful", key=f"down_{tid}", use_container_width=True):
+        updated = submit_feedback(tid, "down", comment)
+        _store(updated)
+        st.rerun()
+
+
+def _store(updated: dict) -> None:
+    lr = st.session_state.get("last_result")
+    if lr and lr.get("ticket_id") == updated.get("ticket_id"):
+        st.session_state["last_result"] = updated
 
 
 # ---------------------------------------------------------------- live agent pipeline
@@ -651,6 +689,26 @@ has an independent auditor check it, and drafts the message you can send.</div><
         col.button(ex[:40] + ("…" if len(ex) > 40 else ""), on_click=use_example, args=(ex,),
                    use_container_width=True, help=ex)
 
+    st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+    inc_go = st.button("Simulate a campus incident · 3 students report the same outage", use_container_width=True,
+                       help="Sends three real reports about the library Wi-Fi one after another. "
+                            "On the third, the Incident Agent groups them into one campus incident.")
+    if inc_go:
+        reports = ["The Wi-Fi is down in the main library",
+                   "No internet in the library since 10 minutes, eduroam fails",
+                   "Eduroam not working at the library, I cannot connect at all"]
+        last = None
+        for i, text in enumerate(reports, 1):
+            st.markdown(f'<div class="section">Report {i} of 3 · “{e(text)}”</div>', unsafe_allow_html=True)
+            pipe_ph = st.empty()
+            pipe_ph.markdown(render_pipeline([]), unsafe_allow_html=True)
+            tl_ph = st.empty()
+            last = process_ticket(text, mode=mode, on_event=live_runner(pipe_ph, tl_ph))
+            pipe_ph.markdown(render_pipeline(last.get("execution_trace") or [], finished=True), unsafe_allow_html=True)
+            tl_ph.empty()
+        st.session_state["last_result"] = last
+        st.rerun()
+
     if go:
         text = st.session_state["problem"].strip()
         if not text:
@@ -746,12 +804,16 @@ def page_dashboard() -> None:
         with g4:
             st.markdown('<div class="kicker">What the system learned</div>', unsafe_allow_html=True)
             L = get_lessons_learned()
+            for c in L.get("student_feedback") or []:
+                st.markdown(f'<div class="step"><div class="stepn">S</div><div>{e(c)}'
+                            f'<div class="meta">student feedback · now fed into new plans</div></div></div>',
+                            unsafe_allow_html=True)
             if L["lessons"]:
                 st.markdown("".join(
                     f'<div class="step"><div class="stepn">{x["seen_overall"]}</div><div>{e(x["lesson"])}'
                     f'<div class="meta">{e(x["check"])} · rejected {x["seen_overall"]}x before, now fed into every new plan</div></div></div>'
                     for x in L["lessons"]), unsafe_allow_html=True)
-            else:
+            elif not L.get("student_feedback"):
                 st.markdown('<div class="small">Nothing learned yet.</div>', unsafe_allow_html=True)
         if an["top_locations"]:
             st.markdown('<div class="kicker" style="margin-top:12px">Hotspots</div>', unsafe_allow_html=True)

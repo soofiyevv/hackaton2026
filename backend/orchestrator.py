@@ -354,3 +354,20 @@ def list_recorded() -> list[dict]:
                     "original_input": r["original_input"], "status": r["status"],
                     "execution_mode": r.get("execution_mode"), "revision_count": r.get("revision_count")})
     return out
+
+
+def feedback(ticket_id: str, rating: str, comment: str = "") -> dict:
+    """Student rates the final plan. A thumbs-down comment becomes a lesson for future plans."""
+    rating = rating.strip().lower()
+    if rating not in ("up", "down"):
+        raise ValueError("rating must be 'up' or 'down'")
+    result = db.load_ticket(ticket_id)
+    if result is None:
+        raise KeyError(f"ticket {ticket_id} not found")
+    now = db.now_iso()
+    result["student_feedback"] = {"rating": rating, "comment": (comment or "").strip()[:500], "at": now}
+    d = {"agent": "Student", "decision_type": "feedback", "decision": "HELPFUL" if rating == "up" else "NOT_HELPFUL",
+         "reason": (comment or "").strip()[:500] or ("helpful" if rating == "up" else "not helpful"), "timestamp": now}
+    result["decisions"].append(d)
+    db.save_feedback(result, d)
+    return result
