@@ -648,6 +648,17 @@ def live_runner(pipe_ph, tl_ph):
 
 # ---------------------------------------------------------------- navigation + global controls
 status = get_system_status()
+
+# anonymous visitor id: each visitor sees their own case history (kept in the URL, survives reloads)
+if "visitor" not in st.session_state:
+    import uuid
+    st.session_state["visitor"] = (st.query_params.get("v") or uuid.uuid4().hex[:10])[:32]
+try:
+    if st.query_params.get("v") != st.session_state["visitor"]:
+        st.query_params["v"] = st.session_state["visitor"]
+except Exception:
+    pass
+VISITOR = st.session_state["visitor"]
 LOGO = HERE / "logo.svg"
 ICON = HERE / "icon.svg"
 try:
@@ -707,7 +718,7 @@ has an independent auditor check it, and drafts the message you can send.</div><
             pipe_ph = st.empty()
             pipe_ph.markdown(render_pipeline([]), unsafe_allow_html=True)
             tl_ph = st.empty()
-            last = process_ticket(text, mode=mode, on_event=live_runner(pipe_ph, tl_ph))
+            last = process_ticket(text, mode=mode, on_event=live_runner(pipe_ph, tl_ph), owner=VISITOR)
             pipe_ph.markdown(render_pipeline(last.get("execution_trace") or [], finished=True), unsafe_allow_html=True)
             tl_ph.empty()
         st.session_state["last_result"] = last
@@ -725,7 +736,7 @@ has an independent auditor check it, and drafts the message you can send.</div><
             chosen = (custom_cat.strip() or "other") if cat == "other" else (None if cat.startswith("(") else cat)
             result = process_ticket(text, category=chosen,
                                     urgency=None if urg.startswith("(") else urg, mode=mode,
-                                    on_event=live_runner(pipe_ph, tl_ph))
+                                    on_event=live_runner(pipe_ph, tl_ph), owner=VISITOR)
             st.session_state["last_result"] = result
             st.rerun()
 
@@ -852,10 +863,13 @@ def page_staff() -> None:
                 st.rerun()
 
 def page_history() -> None:
-    header("Case history", "Every case, with the full trace of what each agent did.")
-    hist = get_ticket_history()
+    header("Case history", "Your cases, with the full trace of what each agent did.")
+    scope = st.radio("Show", ["My cases", "All cases (staff view)"], horizontal=True, label_visibility="collapsed",
+                     key="hist_scope")
+    hist = get_ticket_history(owner=VISITOR if scope == "My cases" else None)
     if not hist:
-        st.markdown('<div class="card small">No cases yet.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card small">No cases yet. Describe a problem on the Resolve page; '
+                    'your cases appear here and only you see them in this view.</div>', unsafe_allow_html=True)
     else:
         df = pd.DataFrame(hist)[["ticket_id", "created_at", "original_input", "category", "priority",
                                  "assigned_department", "status", "revision_count", "execution_mode"]]

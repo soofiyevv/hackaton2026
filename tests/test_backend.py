@@ -287,3 +287,12 @@ def test_free_text_category_is_only_a_hint():
     from backend import process_ticket
     r = process_ticket("There is a broken chair in classroom 204.", category="furniture stuff")
     assert r["category"] == "facilities" and r["status"] != "failed"
+
+
+def test_history_per_visitor():
+    from backend import process_ticket, get_ticket_history
+    a = process_ticket("There is a broken chair in classroom 204.", owner="alice")
+    b = process_ticket("I cannot access my university portal.", owner="bob")
+    assert [t["ticket_id"] for t in get_ticket_history(owner="alice")] == [a["ticket_id"]]
+    assert [t["ticket_id"] for t in get_ticket_history(owner="bob")] == [b["ticket_id"]]
+    assert len(get_ticket_history()) == 2

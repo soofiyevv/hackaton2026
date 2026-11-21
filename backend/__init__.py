@@ -17,7 +17,8 @@ __all__ = ["process_ticket", "get_ticket", "get_ticket_history", "get_dashboard_
 
 
 def process_ticket(user_input: str, category: str | None = None, urgency: str | None = None,
-                   mode: str | None = None, on_event: Callable[[dict], None] | None = None) -> dict:
+                   mode: str | None = None, on_event: Callable[[dict], None] | None = None,
+                   owner: str | None = None) -> dict:
     """Run the full multi-agent pipeline on a student problem and persist the case.
 
     category / urgency: optional hints from the form (None = let the agents decide).
@@ -27,7 +28,7 @@ def process_ticket(user_input: str, category: str | None = None, urgency: str | 
     Never raises for pipeline errors: check result["status"] == "failed" and result["error"].
     """
     return orchestrator.process(user_input, category_hint=category or None,
-                                urgency_hint=urgency or None, mode=mode, on_event=on_event)
+                                urgency_hint=urgency or None, mode=mode, on_event=on_event, owner=owner)
 
 
 def get_ticket(ticket_id: str) -> dict | None:
@@ -35,9 +36,10 @@ def get_ticket(ticket_id: str) -> dict | None:
     return db.load_ticket(ticket_id)
 
 
-def get_ticket_history(limit: int = 100) -> list[dict]:
-    """Newest-first list of ticket summaries (see BACKEND_CONTRACT.md)."""
-    return db.list_tickets(limit)
+def get_ticket_history(limit: int = 100, owner: str | None = None) -> list[dict]:
+    """Newest-first list of ticket summaries (see BACKEND_CONTRACT.md).
+    owner: only cases created with process_ticket(..., owner=owner); None = all cases."""
+    return db.list_tickets(limit, owner)
 
 
 def get_dashboard_stats() -> dict:

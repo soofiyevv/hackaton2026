@@ -80,7 +80,7 @@ def _new_ticket_id() -> str:
 
 
 def process(user_input: str, category_hint: str | None = None, urgency_hint: str | None = None,
-            mode: str | None = None, on_event: EventCallback | None = None) -> dict:
+            mode: str | None = None, on_event: EventCallback | None = None, owner: str | None = None) -> dict:
     if not user_input or not user_input.strip():
         raise ValueError("user_input must not be empty")
     started = time.perf_counter()
@@ -101,6 +101,7 @@ def process(user_input: str, category_hint: str | None = None, urgency_hint: str
         "language": None,
         "location": None,
         "incident": None,
+        "owner": owner,
     }
     rejections = revisions = escalations = 0
     pending_incident = None

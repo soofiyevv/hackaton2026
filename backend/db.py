@@ -104,15 +104,25 @@ def load_ticket(ticket_id: str) -> dict | None:
     return json.loads(row["result_json"]) if row else None
 
 
-def list_tickets(limit: int = 100) -> list[dict]:
+def list_tickets(limit: int = 100, owner: str | None = None) -> list[dict]:
+    """Newest first. owner=None -> everyone's cases; owner="abc" -> only that visitor's cases."""
     with connect() as c:
         rows = c.execute(
             """SELECT ticket_id, created_at, original_input, category, priority, assigned_department,
-               status, auditor_decision, revision_count, execution_mode, total_time_ms
+               status, auditor_decision, revision_count, execution_mode, total_time_ms, result_json
                FROM tickets ORDER BY created_at DESC, rowid DESC LIMIT ?""",
-            (limit,),
+            (limit if owner is None else 2000,),
         ).fetchall()
-    return [dict(r) for r in rows]
+    out = []
+    for r in rows:
+        d = dict(r)
+        res = d.pop("result_json")
+        if owner is not None and json.loads(res).get("owner") != owner:
+            continue
+        out.append(d)
+        if len(out) >= limit:
+            break
+    return out
 
 
 def stats() -> dict:

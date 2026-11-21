@@ -34,10 +34,13 @@ Runs the full pipeline (Triage -> Routing -> Resolution <-> Auditor loop -> fina
 Pipeline errors never raise: check `result["status"] == "failed"` and `result["error"]`.
 A live run takes ~5-40 s (4-8 LLM calls). Offline is instant.
 
+`owner` (optional str): anonymous visitor id. Stored as `result["owner"]`; lets each visitor see only their own
+history via `get_ticket_history(owner=...)`. Dashboard, incidents and staff review stay campus-wide.
+
 ### `get_ticket(ticket_id: str) -> dict | None`
 Full stored result, same shape as `process_ticket`. `None` if not found.
 
-### `get_ticket_history(limit: int = 100) -> list[dict]`
+### `get_ticket_history(limit: int = 100, owner: str | None = None) -> list[dict]`
 Newest first. Each item:
 ```json
 {"ticket_id": "UR-20261121-0A50CF", "created_at": "2026-11-21T09:34:47+00:00",
